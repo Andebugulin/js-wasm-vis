@@ -105,6 +105,122 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Test 2: Gaussian Blur -->
+            <div class="test-item" data-test="blur">
+                <div class="test-header">
+                    <div class="test-number">Test 02</div>
+                    <h3 class="test-title">Gaussian Blur</h3>
+                    <p class="test-description">Medium-weight operation - applying convolution matrix to smooth images</p>
+                </div>
+
+                <div class="gradient-divider"></div>
+
+                <div class="comparison-grid">
+                    <div class="side-content">
+                        <div class="side-label js-label">JavaScript</div>
+                        <div class="image-display" data-side="js">[Original Image]</div>
+                        <button class="action-btn js-btn" data-type="js" data-test="blur">Run Test</button>
+                    </div>
+
+                    <div class="vs-divider">
+                        <span class="vs-text">VS</span>
+                    </div>
+
+                    <div class="side-content">
+                        <div class="side-label wasm-label">WebAssembly</div>
+                        <div class="image-display" data-side="wasm">[Original Image]</div>
+                        <button class="action-btn wasm-btn" data-type="wasm" data-test="blur">Run Test</button>
+                    </div>
+                </div>
+
+                <div class="results-display">
+                    <div class="results-header">
+                        <div class="results-label">⟩ Results</div>
+                        <div class="results-status">awaiting execution</div>
+                    </div>
+
+                    <div class="metrics-row">
+                        <div class="metric-item">
+                            <div class="metric-name">Execution Time</div>
+                            <div class="metric-value" data-metric="time">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Memory Usage</div>
+                            <div class="metric-value" data-metric="memory">--</div>
+                            <div class="metric-note">megabytes</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">UI Freeze</div>
+                            <div class="metric-value" data-metric="freeze">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <div class="verification-badge">Results Verified Identical</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 3: Batch Processing -->
+            <div class="test-item" data-test="batch">
+                <div class="test-header">
+                    <div class="test-number">Test 03</div>
+                    <h3 class="test-title">Batch Processing</h3>
+                    <p class="test-description">High-intensity operation - processing hundreds of images sequentially</p>
+                </div>
+
+                <div class="gradient-divider"></div>
+
+                <div class="comparison-grid">
+                    <div class="side-content">
+                        <div class="side-label js-label">JavaScript</div>
+                        <div class="image-display" data-side="js">[Processing 100+ Images]</div>
+                        <button class="action-btn js-btn" data-type="js" data-test="batch">Run Test</button>
+                    </div>
+
+                    <div class="vs-divider">
+                        <span class="vs-text">VS</span>
+                    </div>
+
+                    <div class="side-content">
+                        <div class="side-label wasm-label">WebAssembly</div>
+                        <div class="image-display" data-side="wasm">[Processing 100+ Images]</div>
+                        <button class="action-btn wasm-btn" data-type="wasm" data-test="batch">Run Test</button>
+                    </div>
+                </div>
+
+                <div class="results-display">
+                    <div class="results-header">
+                        <div class="results-label">⟩ Results</div>
+                        <div class="results-status">awaiting execution</div>
+                    </div>
+
+                    <div class="metrics-row">
+                        <div class="metric-item">
+                            <div class="metric-name">Execution Time</div>
+                            <div class="metric-value" data-metric="time">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Memory Usage</div>
+                            <div class="metric-value" data-metric="memory">--</div>
+                            <div class="metric-note">megabytes</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">UI Freeze</div>
+                            <div class="metric-value" data-metric="freeze">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <div class="verification-badge">Results Verified Identical</div>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
