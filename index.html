@@ -43,7 +43,71 @@
                 </p>
             </div>
         </section>
+
+        <!-- Benchmark Section -->
+        <section class="benchmark-section">
+            <h2 class="benchmark-title">→ Performance Benchmarks</h2>
+
+            <!-- Test 1: Color Inversion -->
+            <div class="test-item" data-test="invert">
+                <div class="test-header">
+                    <div class="test-number">Test 01</div>
+                    <h3 class="test-title">Color Inversion</h3>
+                    <p class="test-description">Lightweight operation - inverting RGB values pixel by pixel</p>
+                </div>
+
+                <div class="gradient-divider"></div>
+
+                <div class="comparison-grid">
+                    <div class="side-content">
+                        <div class="side-label js-label">JavaScript</div>
+                        <div class="image-display" data-side="js">[Original Image]</div>
+                        <button class="action-btn js-btn" data-type="js" data-test="invert">Run Test</button>
+                    </div>
+
+                    <div class="vs-divider">
+                        <span class="vs-text">VS</span>
+                    </div>
+
+                    <div class="side-content">
+                        <div class="side-label wasm-label">WebAssembly</div>
+                        <div class="image-display" data-side="wasm">[Original Image]</div>
+                        <button class="action-btn wasm-btn" data-type="wasm" data-test="invert">Run Test</button>
+                    </div>
+                </div>
+
+                <div class="results-display">
+                    <div class="results-header">
+                        <div class="results-label">⟩ Results</div>
+                        <div class="results-status">awaiting execution</div>
+                    </div>
+
+                    <div class="metrics-row">
+                        <div class="metric-item">
+                            <div class="metric-name">Execution Time</div>
+                            <div class="metric-value" data-metric="time">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">Memory Usage</div>
+                            <div class="metric-value" data-metric="memory">--</div>
+                            <div class="metric-note">megabytes</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-name">UI Freeze</div>
+                            <div class="metric-value" data-metric="freeze">--</div>
+                            <div class="metric-note">milliseconds</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <div class="verification-badge">Results Verified Identical</div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
     <footer>
         <p>Bachelor's Thesis | Information Technology | 2025</p>
         <p style="margin-top: 0.5rem; font-size: 0.9rem;">
