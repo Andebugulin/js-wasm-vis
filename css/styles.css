@@ -47,7 +47,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         linear-gradient(90deg, transparent 0%, var(--accent-wasm) 50%, transparent 100%),
         linear-gradient(0deg, transparent 0%, var(--accent-js) 50%, transparent 100%);
     opacity: 0.03;
@@ -206,10 +206,10 @@ body {
 /* Gradient Divider */
 .gradient-divider {
     height: 2px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        var(--accent-js) 25%, 
-        var(--accent-wasm) 75%, 
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--accent-js) 25%,
+        var(--accent-wasm) 75%,
         transparent 100%
     );
     margin: 3rem 0;
@@ -356,10 +356,11 @@ body {
     opacity: 0.6;
 }
 
+/* Images now fill containers fully */
 .actual-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: none;
 }
 
@@ -384,28 +385,33 @@ body {
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: left;
+    justify-content: left;
 }
 
 .batch-layer {
     position: absolute;
     width: 80%;
     height: 80%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(23, 13, 13, 1);
+    border: 5px solid rgba(23, 13, 13, 1);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.7rem;
     color: var(--text-secondary);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.batch-layer:nth-child(1) { transform: translate(-8px, -8px); opacity: 0.4; }
-.batch-layer:nth-child(2) { transform: translate(-4px, -4px); opacity: 0.6; }
-.batch-layer:nth-child(3) { transform: translate(0, 0); opacity: 0.8; }
-.batch-layer:nth-child(4) { transform: translate(4px, 4px); opacity: 1; }
+.batch-layer:nth-child(1) { transform: translate(-8px, -8px); filter: brightness(100%); }
+.batch-layer:nth-child(2) { transform: translate(-4px, -4px); filter: brightness(80%); }
+.batch-layer:nth-child(3) { transform: translate(0, 0); filter: brightness(60%); }
+.batch-layer:nth-child(4) { transform: translate(4px, 4px); filter: brightness(40%); }
+.batch-layer:nth-child(5) { transform: translate(8px, 8px); filter: brightness(20%); }
+
 
 /* Hidden file input */
 .hidden-file-input {
@@ -457,6 +463,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
 }
 
+/* Run Test */
 .run-test-button {
     padding: 1.2rem 3rem;
     font-size: 1rem;
@@ -698,5 +705,5 @@ footer {
 
     .chart-bar {
         width: 30px;
-    }
+}
 }
