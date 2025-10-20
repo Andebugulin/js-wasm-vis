@@ -1,0 +1,5 @@
+# Rust/WASM build artifacts
+wasm/test1/wasm-src-test1/target/
+wasm/test2/*/target/
+wasm/test3/*/target/
+
