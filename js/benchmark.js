@@ -3,7 +3,7 @@ export class Benchmark {
     constructor(ui) {
         this.ui = ui;
         this.testResults = {};
-        this.wasmModule = null; // Cache WASM module TODO: validate caching, I am not sure, but I think browser will cache it anyway
+        this.wasmModule = null; // Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
     }
 
     async runTest(testType, processorType, imageData) {

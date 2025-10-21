@@ -119,6 +119,13 @@ class App {
 
         this.currentImages[testType] = file;
     }
+    
+    getRunsForImage(imageData) {
+        const megapixels = (imageData.width * imageData.height) / 1000000;
+        if (megapixels < 4) return 100;
+        if (megapixels < 15) return 30;
+        return 1;
+    }
 
     async handleRunTest(event) {
         const button = event.target;
@@ -128,13 +135,12 @@ class App {
         button.disabled = true;
         button.textContent = '⏳ Running...';
     
-        const RUNS = 1; // TODO: Parameter: number of runs per test, NEEDS TO BE CAREFULLY CHOSEN CAN LEAD TO FREEZE AND HIGH MEMORY USAGE, I think 
-        // i need to make logic that would check image dimensions, because it highly depends on it, if image is more than 8000 x Y
-        //  even with this dimensions 30 runs can lead to freeze!
     
         try {
             const imageData = await ImageUtils.loadImage(this.currentImages[testType]);
-            
+            // NOTE: determining runs can be as well based not only on image size, but also on something else, need to think about it
+            const RUNS = this.getRunsForImage(imageData);
+                
             // Run BOTH tests simultaneously so you can see which finishes first
             // TODO: figure out why at the first execution of the test, wasm ui and only ui is slower than js
             // wasm ui rerendering is slower although according to metrics its faster 
