@@ -18,6 +18,55 @@ export class Benchmark {
         return metrics;
     }
 
+    async runComparison(testType, imageData, runs) {
+        const [jsMetrics, wasmMetrics] = await Promise.all([
+            this.runSingleTest(testType, 'js', imageData, runs),
+            this.runSingleTest(testType, 'wasm', imageData, runs)
+        ]);
+        
+        this.storeResults(testType, 'js', jsMetrics);
+        this.storeResults(testType, 'wasm', wasmMetrics);
+    }
+
+    // Run single side with UI feedback
+    async runSingleTest(testType, side, imageData, runs) {
+        this.ui.showCountdown(testType, side, 'start');
+        await this.delay(1000);
+        
+        this.ui.showCountdown(testType, side, `executing ${runs} runs`);
+        const medianMetrics = await this.runMultipleTests(testType, side, imageData, runs);
+        
+        this.ui.showCountdown(testType, side, 'complete');
+        this.ui.displayResult(testType, side, medianMetrics.processedImageData);
+        await this.delay(800);
+        
+        this.ui.hideCountdown(testType, side);
+        
+        return medianMetrics;
+    }
+
+    // Run multiple iterations and return median
+    async runMultipleTests(testType, processorType, imageData, runs) {
+        const metricsArray = [];
+        
+        for (let i = 0; i < runs; i++) {
+            const metrics = await this.measurePerformance(testType, processorType, imageData);
+            metricsArray.push(metrics);
+            await this.delay(50);
+        }
+        
+        return this.getMedianMetrics(metricsArray);
+    }
+
+    getMedianMetrics(metricsArray) {
+        const sorted = [...metricsArray].sort((a, b) => a.executionTime - b.executionTime);
+        return sorted[Math.floor(sorted.length / 2)];
+    }
+
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async measurePerformance(testType, processorType, imageData) {
         const startMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
         const startTime = performance.now();

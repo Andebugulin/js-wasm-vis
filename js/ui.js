@@ -1,7 +1,94 @@
+import { ImageUtils } from './utils.js';
 // UI updates and DOM manipulation
 export class UI {
     constructor() {
         this.maxHistoryItems = 10;
+    }
+
+    // File preview display
+    showImagePreview(testType, dataUrl) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const containers = testItem.querySelectorAll('.image-container');
+        
+        containers.forEach(container => {
+            container.classList.add('has-image');
+            const placeholder = container.querySelector('.image-placeholder');
+            const actualImage = container.querySelector('.actual-image');
+            
+            placeholder.style.display = 'none';
+            actualImage.src = dataUrl;
+            actualImage.classList.add('visible');
+
+            // Batch preview handling
+            if (testType === 'batch') {
+                const batchPreview = container.querySelector('.batch-preview');
+                if (batchPreview) {
+                    batchPreview.classList.add('active');
+                    const layers = batchPreview.querySelectorAll('.batch-layer');
+                    layers.forEach((layer, i) => {
+                        layer.style.backgroundImage = `url(${dataUrl})`;
+                        layer.textContent = '';
+                        const offset = i * 35;
+                        layer.style.transform = `translate(${offset}px, ${offset}px)`;
+                        layer.style.zIndex = layers.length - i;
+                    });
+                }
+            }
+        });
+    }
+
+    showVideoPreview(testType, file) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const containers = testItem.querySelectorAll('.image-container');
+        
+        containers.forEach(container => {
+            container.classList.add('has-image');
+            container.querySelector('.image-placeholder').style.display = 'none';
+            const batchPreview = container.querySelector('.batch-preview');
+            if (batchPreview) batchPreview.classList.add('active');
+        });
+    }
+
+    enableRunButton(testType) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const button = testItem.querySelector('.run-test-button');
+        button.disabled = false;
+    }
+
+    setButtonRunning(testType, isRunning) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const button = testItem.querySelector('.run-test-button');
+        button.disabled = isRunning;
+        button.textContent = isRunning ? '⏳ Running...' : '▶ Run Complete Test';
+    }
+
+    // Countdown overlay controls
+    showCountdown(testType, side, text) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const container = testItem.querySelector(`.image-container[data-side="${side}"]`);
+        const countdown = container.querySelector('.countdown-overlay');
+        
+        countdown.textContent = text;
+        countdown.classList.add('active');
+        container.classList.add('processing');
+    }
+
+    hideCountdown(testType, side) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const container = testItem.querySelector(`.image-container[data-side="${side}"]`);
+        const countdown = container.querySelector('.countdown-overlay');
+        
+        countdown.classList.remove('active');
+        container.classList.remove('processing');
+    }
+
+    displayResult(testType, side, imageData) {
+        const testItem = document.querySelector(`[data-test="${testType}"]`);
+        const container = testItem.querySelector(`.image-container[data-side="${side}"]`);
+        const actualImage = container.querySelector('.actual-image');
+        
+        const dataUrl = ImageUtils.imageDataToDataURL(imageData);
+        actualImage.src = dataUrl;
     }
 
     updateChart(testType, metric = 'time') {
