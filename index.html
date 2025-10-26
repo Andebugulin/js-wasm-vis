@@ -16,7 +16,6 @@
         </h1>
         <p>
             A practical performance comparison of CPU-intensive image processing tasks. 
-            Exploring near-native execution speeds in the browser.
         </p>
         <div class="scroll-indicator"></div>
     </section>
@@ -42,6 +41,14 @@
                     to their computational limits—making them ideal for performance benchmarking.
                 </p>
             </div>
+
+            <div class="info-box">
+                <h2>// Measured Metrics</h2>
+                <ul class="metrics-list">
+                    <li><strong>Execution Time:</strong> Total processing duration in <code style="color:greenyellow">milliseconds</code></li>
+                    <li><strong>Throughput:</strong> Megapixels processed per <code style="color:greenyellow">second</code></li>
+                </ul>
+            </div>
         </section>
 
         <!-- Benchmark Section -->
@@ -57,10 +64,22 @@
                 </div>
 
                 <div class="gradient-divider"></div>
-
+                <div style="text-align: center; margin: 1rem 0;">
+                    <div class="verification-badge">Results Verified Identical</div>
+                </div>
                 <!-- Image Comparison -->
                 <div class="image-comparison">
                     <div class="image-container" data-side="js">
+                        <div class="dimension-indicators">
+                            <div class="dimension-width">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                            <div class="dimension-height">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                        </div>
                         <div class="image-label">JavaScript</div>
                         <div class="countdown-overlay">3</div>
                         <div class="image-placeholder">
@@ -100,14 +119,18 @@
                 </div>
                 <input type="file" class="hidden-file-input" accept="image/*" data-test="invert">
 
+                <!-- Speedup Summary -->
+                <div class="speedup-summary"></div>
+
                 <!-- Results Dashboard -->
                 <div class="results-dashboard">
                     <div class="dashboard-header">
                         <div class="results-label">⟩ Performance Analysis</div>
                         <div class="metric-selector">
-                            <button class="metric-tab active" data-metric="time">Execution Time</button>
-                            <button class="metric-tab" data-metric="memory">Memory Usage</button>
-                            <button class="metric-tab" data-metric="freeze">UI Freeze</button>
+                                <button class="metric-tab active" data-metric="time">Execution Time</button>
+                                <button class="metric-tab" data-metric="warmup">Cold Start</button>
+                                <button class="metric-tab" data-metric="pixelRate">Pixel Rate</button>
+                                <button class="metric-tab" data-metric="consistency">Consistency</button>
                         </div>
                     </div>
 
@@ -115,10 +138,6 @@
                         <div class="empty-state">
                             Run tests to see performance comparison
                         </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <div class="verification-badge">Results Verified Identical</div>
                     </div>
                 </div>
             </div>
@@ -132,9 +151,21 @@
                 </div>
 
                 <div class="gradient-divider"></div>
-
+                <div style="text-align: center; margin: 1rem 0;">
+                    <div class="verification-badge">Results Verified Identical</div>
+                </div>
                 <div class="image-comparison">
                     <div class="image-container" data-side="js">
+                        <div class="dimension-indicators">
+                            <div class="dimension-width">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                            <div class="dimension-height">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                        </div>
                         <div class="image-label">JavaScript</div>
                         <div class="countdown-overlay">3</div>
                         <div class="image-placeholder">
@@ -179,7 +210,6 @@
                         <div class="metric-selector">
                             <button class="metric-tab active" data-metric="time">Execution Time</button>
                             <button class="metric-tab" data-metric="memory">Memory Usage</button>
-                            <button class="metric-tab" data-metric="freeze">UI Freeze</button>
                         </div>
                     </div>
 
@@ -187,10 +217,6 @@
                         <div class="empty-state">
                             Run tests to see performance comparison
                         </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <div class="verification-badge">Results Verified Identical</div>
                     </div>
                 </div>
             </div>
@@ -204,9 +230,21 @@
                 </div>
 
                 <div class="gradient-divider"></div>
-
+                <div style="text-align: center; margin: 1rem 0;">
+                    <div class="verification-badge">Results Verified Identical</div>
+                </div>
                 <div class="image-comparison">
                     <div class="image-container" data-side="js">
+                        <div class="dimension-indicators">
+                            <div class="dimension-width">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                            <div class="dimension-height">
+                                <div class="dimension-line"></div>
+                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
+                            </div>
+                        </div>
                         <div class="image-label">JavaScript</div>
                         <div class="countdown-overlay">3</div>
                         <div class="image-placeholder">
@@ -216,12 +254,12 @@
                                 <polyline points="21 15 16 10 5 21"></polyline>
                             </svg>
                             <div class="upload-hint">Upload image or video (&lt;20s)</div>
-                        </div>
-                        <div class="batch-preview">
-                            <div class="batch-stack">
-                                <div class="batch-layer">Frame 5</div>
+            </div>
+        <div class="batch-preview">
+        <div class="batch-stack">
+            <div class="batch-layer">Frame 5</div>
                                 <div class="batch-layer">Frame 4</div>
-                                <div class="batch-layer">Frame 3</div>
+                <div class="batch-layer">Frame 3</div>
                                 <div class="batch-layer">Frame 2</div>
                                 <div class="batch-layer">Frame 1</div>
                             </div>
@@ -251,13 +289,13 @@
                         </div>
                         <img class="actual-image" src="" alt="Processing result">
                     </div>
-                </div>
-
+            </div>
+            
                 <div class="control-center">
-                    <button class="upload-button" data-test="batch">
-                        📁 Select Image/Video
+        <button class="upload-button" data-test="batch">
+                📁 Select Image/Video
                     </button>
-                    <button class="run-test-button" data-test="batch" disabled>
+                <button class="run-test-button" data-test="batch" disabled>
                         ▶ Run Complete Test
                     </button>
                 </div>
@@ -269,7 +307,6 @@
                         <div class="metric-selector">
                             <button class="metric-tab active" data-metric="time">Execution Time</button>
                             <button class="metric-tab" data-metric="memory">Memory Usage</button>
-                            <button class="metric-tab" data-metric="freeze">UI Freeze</button>
                         </div>
                     </div>
 
@@ -278,11 +315,32 @@
                             Run tests to see performance comparison
                         </div>
                     </div>
-
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <div class="verification-badge">Results Verified Identical</div>
-                    </div>
                 </div>
+            </div>
+        </section>
+           <!-- Methodology Section -->
+           <section class="info-section">
+            <div class="info-box">
+                <h2>// Methodology</h2>
+                <p>
+                    Each test runs multiple iterations (1-30 depending on image size) to ensure statistical reliability. 
+                    Results show the <code style="color: greenyellow">median</code> value to reduce the impact of outliers caused by browser 
+                    garbage collection or system processes.
+                </p>
+                <p style="margin-top: 1rem;">
+                    The winner is determined after all tests complete, and results are displayed in order <code style="color: greenyellow">winner first</code> 
+                    with visual timing based on actual performance differences. 
+                </p>
+        </section>
+        <section>
+            <div class="info-box">
+                <h2>// Limitations</h2>
+                <ul class="metrics-list">
+                    <li><strong>Memory Measurement:</strong> Only available in Chrome (uses non-standard <code style="color: greenyellow; background-color: transparent;">performance.memory</code> API)</li>
+                    <li><strong>Browser Differences:</strong> Results may vary between browsers due to different JIT compilers and WASM implementations</li>
+                    <li><strong>System Load:</strong> Background processes can affect results - close other tabs for best accuracy</li>
+                    <li><strong>First-Run Overhead:</strong> WASM initialization cost is included in first test run (realistic for production)</li>
+                </ul>
             </div>
         </section>
     </div>
@@ -291,9 +349,6 @@
         <p>Bachelor's Thesis | Information Technology | 2025</p>
         <p style="margin-top: 0.5rem; font-size: 0.9rem;">
             Developed by <strong style="color: var(--text-highlight);">Andrei Gulin</strong>
-        </p>
-        <p style="margin-top: 0.3rem; font-size: 0.85rem; color: var(--text-secondary);">
-            Exploring WebAssembly performance in real-world web applications
         </p>
     </footer>
 
