@@ -151,162 +151,163 @@ export class Benchmark {
         };
     }
 
-/**
- * Execute the actual image processing test
- */
-async executeTest(testType, processorType, imageData) {
-    if (testType === 'invert') {
-        if (processorType === 'js') {
-            const module = await import('./js-processor.js');
-            return module.JSProcessor.invertColors(imageData);
-        } else {
-            // Load and initialize WASM (cached after first load)
-            if (!this.wasmModule) {
-                try {
-                    this.wasmModule = await import('../wasm/test1/wasm-build-test1/wasm_src_test1.js');
-                    await this.wasmModule.default();
-                } catch (error) {
-                    console.error('WASM initialization failed:', error);
-                    throw new Error('WebAssembly module failed to load. Check console for details.');
+    /**
+     * Execute the actual image processing test
+     */
+    async executeTest(testType, processorType, imageData) {
+        if (testType === 'invert') {
+            if (processorType === 'js') {
+                const module = await import('./js-processor.js');
+                return module.JSProcessor.invertColors(imageData);
+            } else {
+                // Load and initialize WASM (cached after first load)
+                if (!this.wasmModule) {
+                    try {
+                        this.wasmModule = await import('../wasm/test1/wasm-build-test1/wasm_src_test1.js');
+                        await this.wasmModule.default();
+                    } catch (error) {
+                        console.error('WASM initialization failed:', error);
+                        throw new Error('WebAssembly module failed to load. Check console for details.');
+                    }
                 }
+                
+                // Measure data transfer time
+                const transferStart = performance.now();
+                const result = this.wasmModule.invert_colors(imageData);
+                const transferEnd = performance.now();
+                
+                // Attach transfer time to result
+                result._transferTime = transferEnd - transferStart;
+                return result;
             }
-            
-            // Measure data transfer time
-            const transferStart = performance.now();
-            const result = this.wasmModule.invert_colors(imageData);
-            const transferEnd = performance.now();
-            
-            // Attach transfer time to result
-            result._transferTime = transferEnd - transferStart;
-            return result;
         }
-    }
-    
-    throw new Error(`Test type "${testType}" not implemented`);
-}
-
-  /**
- * Calculate statistics from metrics array
- */
-calculateStatistics(metricsArray) {
-    if (metricsArray.length === 0) {
-        throw new Error('Cannot calculate statistics on empty array');
+        
+        throw new Error(`Test type "${testType}" not implemented`);
     }
 
-    // Sort by execution time for median
-    const sorted = [...metricsArray].sort((a, b) => 
-        a.executionTime - b.executionTime
-    );
-    
-    const median = sorted[Math.floor(sorted.length / 2)];
-    
-    // Calculate mean
-    const sum = metricsArray.reduce((acc, m) => ({
-        executionTime: acc.executionTime + m.executionTime,
-        throughput: acc.throughput + m.throughput,
-    }), {
-        executionTime: 0,
-        throughput: 0,
-    });
-    
-    const count = metricsArray.length;
-    const mean = {
-        executionTime: sum.executionTime / count,
-        throughput: sum.throughput / count,
-    };
-    
-    // Calculate standard deviation (must be AFTER mean is calculated)
-    const squaredDiffs = metricsArray.reduce((acc, m) => 
-        acc + Math.pow(m.executionTime - mean.executionTime, 2), 0
-    );
-    const stdDev = Math.sqrt(squaredDiffs / count);
-    
-    // Calculate coefficient of variation (must be AFTER stdDev)
-    const coefficientOfVariation = (stdDev / mean.executionTime) * 100;
-    
-    // Find min and max
-    const min = sorted[0];
-    const max = sorted[sorted.length - 1];
+    /**
+     * Calculate statistics from metrics array
+     */
+    calculateStatistics(metricsArray) {
+        if (metricsArray.length === 0) {
+            throw new Error('Cannot calculate statistics on empty array');
+        }
 
-    const firstRun = metricsArray.find(m => m.isFirstRun);
-    
-    return {
-        median,
-        mean,
-        stdDev,
-        coefficientOfVariation,
-        min,
-        max,
-        count,
-        firstRun,
-        allRuns: metricsArray
-    };
-}
- /**
- * Store results in memory and sessionStorage
- */
-storeResults(testType, processorType, statistics) {
-    // Initialize storage
-    if (!this.testResults[testType]) {
-        this.testResults[testType] = [];
-    }
-    
-    let results = this.testResults[testType];
-    let currentRun = results[results.length - 1];
-    
-    // Create new run if needed
-    if (!currentRun || (currentRun.js && currentRun.wasm)) {
-        currentRun = {};
-        results.push(currentRun);
-    }
-    
-    // Store full statistics in memory (includes ImageData)
-    currentRun[processorType] = statistics;
-    
-    // Clear ImageData from all runs except current median
-    if (results.length > 1) {
-        results.slice(0, -1).forEach(oldRun => {
-            if (oldRun.js?.median?.processedImageData) oldRun.js.median.processedImageData = null;
-            if (oldRun.wasm?.median?.processedImageData) oldRun.wasm.median.processedImageData = null;
+        // Sort by execution time for median
+        const sorted = [...metricsArray].sort((a, b) => 
+            a.executionTime - b.executionTime
+        );
+        
+        const median = sorted[Math.floor(sorted.length / 2)];
+        
+        // Calculate mean
+        const sum = metricsArray.reduce((acc, m) => ({
+            executionTime: acc.executionTime + m.executionTime,
+            throughput: acc.throughput + m.throughput,
+        }), {
+            executionTime: 0,
+            throughput: 0,
         });
+        
+        const count = metricsArray.length;
+        const mean = {
+            executionTime: sum.executionTime / count,
+            throughput: sum.throughput / count,
+        };
+        
+        // Calculate standard deviation (must be AFTER mean is calculated)
+        const squaredDiffs = metricsArray.reduce((acc, m) => 
+            acc + Math.pow(m.executionTime - mean.executionTime, 2), 0
+        );
+        const stdDev = Math.sqrt(squaredDiffs / count);
+        
+        // Calculate coefficient of variation (must be AFTER stdDev)
+        const coefficientOfVariation = (stdDev / mean.executionTime) * 100;
+        
+        // Find min and max
+        const min = sorted[0];
+        const max = sorted[sorted.length - 1];
+
+        const firstRun = metricsArray.find(m => m.isFirstRun);
+        
+        return {
+            median,
+            mean,
+            stdDev,
+            coefficientOfVariation,
+            min,
+            max,
+            count,
+            firstRun,
+            allRuns: metricsArray
+        };
     }
-   
-    // Store limited data in sessionStorage (no ImageData)
-    const stored = sessionStorage.getItem(
-        `${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`
-    );
-    let storedResults = stored ? JSON.parse(stored) : [];
-    let storedRun = storedResults[storedResults.length - 1];
+
+    /**
+     * Store results in memory and sessionStorage
+     */
+    storeResults(testType, processorType, statistics) {
+        // Initialize storage
+        if (!this.testResults[testType]) {
+            this.testResults[testType] = [];
+        }
+        
+        let results = this.testResults[testType];
+        let currentRun = results[results.length - 1];
+        
+        // Create new run if needed
+        if (!currentRun || (currentRun.js && currentRun.wasm)) {
+            currentRun = {};
+            results.push(currentRun);
+        }
+        
+        // Store full statistics in memory (includes ImageData)
+        currentRun[processorType] = statistics;
+        
+        // Clear ImageData from all runs except current median
+        if (results.length > 1) {
+            results.slice(0, -1).forEach(oldRun => {
+                if (oldRun.js?.median?.processedImageData) oldRun.js.median.processedImageData = null;
+                if (oldRun.wasm?.median?.processedImageData) oldRun.wasm.median.processedImageData = null;
+            });
+        }
     
-    if (!storedRun || (storedRun.js && storedRun.wasm)) {
-        storedRun = {};
-        storedResults.push(storedRun);
+        // Store limited data in sessionStorage (no ImageData)
+        const stored = sessionStorage.getItem(
+            `${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`
+        );
+        let storedResults = stored ? JSON.parse(stored) : [];
+        let storedRun = storedResults[storedResults.length - 1];
+        
+        if (!storedRun || (storedRun.js && storedRun.wasm)) {
+            storedRun = {};
+            storedResults.push(storedRun);
+        }
+        
+        // Store only serializable metrics (no ImageData, no functions)
+        storedRun[processorType] = {
+            median: this.sanitizeMetrics(statistics.median),
+            mean: statistics.mean,
+            stdDev: statistics.stdDev,
+            min: this.sanitizeMetrics(statistics.min),
+            max: this.sanitizeMetrics(statistics.max),
+            count: statistics.count,
+            firstRun: this.sanitizeMetrics(statistics.firstRun)
+        };
+        
+        // Keep only last N results
+        if (storedResults.length > CONFIG.STORAGE.MAX_HISTORY_ITEMS) {
+            storedResults = storedResults.slice(-CONFIG.STORAGE.MAX_HISTORY_ITEMS);
+        }
+        if (results.length > CONFIG.STORAGE.MAX_HISTORY_ITEMS) {
+            this.testResults[testType] = results.slice(-CONFIG.STORAGE.MAX_HISTORY_ITEMS);
+        }
+        
+        sessionStorage.setItem(
+            `${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`,
+            JSON.stringify(storedResults)
+        );
     }
-    
-    // Store only serializable metrics (no ImageData, no functions)
-    storedRun[processorType] = {
-        median: this.sanitizeMetrics(statistics.median),
-        mean: statistics.mean,
-        stdDev: statistics.stdDev,
-        min: this.sanitizeMetrics(statistics.min),
-        max: this.sanitizeMetrics(statistics.max),
-        count: statistics.count,
-        firstRun: this.sanitizeMetrics(statistics.firstRun)
-    };
-    
-    // Keep only last N results
-    if (storedResults.length > CONFIG.STORAGE.MAX_HISTORY_ITEMS) {
-        storedResults = storedResults.slice(-CONFIG.STORAGE.MAX_HISTORY_ITEMS);
-    }
-    if (results.length > CONFIG.STORAGE.MAX_HISTORY_ITEMS) {
-        this.testResults[testType] = results.slice(-CONFIG.STORAGE.MAX_HISTORY_ITEMS);
-    }
-    
-    sessionStorage.setItem(
-        `${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`,
-        JSON.stringify(storedResults)
-    );
-}
 
     /**
      * Remove non-serializable properties from metrics

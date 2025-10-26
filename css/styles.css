@@ -695,6 +695,7 @@ footer {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
 }
 
 .chart-title {
@@ -706,6 +707,65 @@ footer {
 .chart-subtitle {
     font-size: 0.75rem;
     color: var(--text-secondary);
+}
+.clear-stats-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    color: #ff4444;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.clear-stats-btn:hover {
+    background: rgba(255, 68, 68, 0.1);
+    border-color: #ff4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2);
+}
+
+/* Line Chart Styling */
+.chart-canvas-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.line-chart {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 20px rgba(0, 255, 0, 0.05));
+}
+
+.line-chart .grid line {
+    stroke-dasharray: 2, 4;
+}
+
+.line-chart .data-point {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.line-chart .hover-circle {
+    transition: all 0.2s ease;
+}
+
+.line-chart .data-point:hover .hover-circle {
+    r: 12;
+    fill: rgba(255, 255, 255, 0.1);
+}
+
+.line-chart .data-point:hover circle:first-child {
+    r: 7;
 }
 
 .chart-canvas {
@@ -796,14 +856,21 @@ footer {
     font-size: 0.75rem;
 }
 
-.legend-color {
-    width: 20px;
-    height: 12px;
+.legend-line {
+    width: 30px;
+    height: 3px;
     border-radius: 2px;
 }
 
-.legend-color.js { background: var(--accent-js); }
-.legend-color.wasm { background: var(--accent-wasm); }
+.legend-line.js { 
+    background: var(--accent-js); 
+    box-shadow: 0 0 8px rgba(247, 223, 30, 0.5);
+}
+
+.legend-line.wasm { 
+    background: var(--accent-wasm); 
+    box-shadow: 0 0 8px rgba(101, 79, 240, 0.5);
+}
 
 .empty-state {
     display: flex;
@@ -1075,15 +1142,49 @@ footer {
 }
 
 .dimension-height .dimension-label {
-    margin-left: -1.2rem;
-    transform: rotate(-90deg);
-    transform-origin: left center;
+    writing-mode: sideways-lr;
+    margin-left: -2.8rem;
 }
 
 .dim-value {
     font-weight: 700;
     color: var(--accent-js);
     font-size: 1rem;
+}
+
+/* Hide old bar chart styles */
+.chart-canvas {
+    display: none;
+}
+
+/* Hide all data point labels by default, show on hover */
+.data-point-labels {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.run-group:hover .data-point-labels {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Always show labels for the last run */
+.run-group:last-of-type .data-point-labels {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.line-chart .run-group {
+    cursor: pointer;
+}
+
+.line-chart .run-group:hover circle:first-of-type {
+    r: 7;
+}
+
+.line-chart .run-group:hover circle:nth-of-type(3) {
+    r: 7;
 }
 
 @keyframes fadeIn {

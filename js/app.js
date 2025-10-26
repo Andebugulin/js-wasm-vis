@@ -12,6 +12,10 @@ class App {
         this.ui = new UI();
         this.benchmark = new Benchmark(this.ui);
         this.currentImages = {};
+        
+        // Expose benchmark globally for UI access
+        window.benchmarkInstance = this.benchmark;
+        
         this.init();
     }
 
@@ -48,125 +52,125 @@ class App {
             tab.addEventListener('click', (e) => this.handleMetricChange(e));
         });
     }
-/**
- * Handle file upload and validation
- */
-async handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    /**
+     * Handle file upload and validation
+     */
+    async handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-    const testType = event.target.dataset.test;
-    
-    // Validate file
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-        alert('Please upload a valid image or video file');
-        return;
-    }
-
-    // Validate file size (max 50MB)
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) {
-        alert('File too large. Please upload an image smaller than 50MB');
-        return;
-    }
-
-    try {
-        let dataUrl;
+        const testType = event.target.dataset.test;
         
-        // Store file/URL
-        if (file.type.startsWith('video/')) {
-            // For videos, we store the file directly
-            this.currentImages[testType] = {
-                data: file,
-                hash: 'video-' + Date.now(),
-                filename: file.name,
-                size: file.size,
-                dimensions: null,
-                isVideo: true
-            };
-            await this.ui.showVideoPreview(testType, file);
-        } else {
-            // For images, convert to dataURL and generate hash
-            dataUrl = await this.readFileAsDataURL(file);
-            const imageHash = await this.generateImageHash(dataUrl);
+        // Validate file
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+            alert('Please upload a valid image or video file');
+            return;
+        }
+
+        // Validate file size (max 50MB)
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxSize) {
+            alert('File too large. Please upload an image smaller than 50MB');
+            return;
+        }
+
+        try {
+            let dataUrl;
             
-            this.currentImages[testType] = {
-                data: dataUrl,
-                hash: imageHash,
-                filename: file.name,
-                size: file.size,
-                dimensions: null,
-                isVideo: false
-            };
-            await this.ui.showImagePreview(testType, dataUrl);
+            // Store file/URL
+            if (file.type.startsWith('video/')) {
+                // For videos, we store the file directly
+                this.currentImages[testType] = {
+                    data: file,
+                    hash: 'video-' + Date.now(),
+                    filename: file.name,
+                    size: file.size,
+                    dimensions: null,
+                    isVideo: true
+                };
+                await this.ui.showVideoPreview(testType, file);
+            } else {
+                // For images, convert to dataURL and generate hash
+                dataUrl = await this.readFileAsDataURL(file);
+                const imageHash = await this.generateImageHash(dataUrl);
+                
+                this.currentImages[testType] = {
+                    data: dataUrl,
+                    hash: imageHash,
+                    filename: file.name,
+                    size: file.size,
+                    dimensions: null,
+                    isVideo: false
+                };
+                await this.ui.showImagePreview(testType, dataUrl);
+            }
+
+            // Enable run button
+            this.ui.enableRunButton(testType);
+        } catch (error) {
+            console.error('File upload failed:', error);
+            alert('Failed to load file. Please try another image.');
         }
-
-        // Enable run button
-        this.ui.enableRunButton(testType);
-    } catch (error) {
-        console.error('File upload failed:', error);
-        alert('Failed to load file. Please try another image.');
     }
-}
 
-/**
- * Generate simple hash from image data
- */
-async generateImageHash(dataUrl) {
-    const img = await ImageUtils.loadImage(dataUrl);
-    let hash = 0;
-    for (let i = 0; i < Math.min(400, img.data.length); i++) {
-        hash = ((hash << 5) - hash) + img.data[i];
-        hash = hash & hash;
-    }
-    return hash.toString(16);
-}
-
-/**
- * Handle test execution
- */
-async handleRunTest(event) {
-    const testType = event.target.dataset.test;
-    
-    // Disable button and show running state
-    this.ui.setButtonRunning(testType, true);
-
-    try {
-        const imageInfo = this.currentImages[testType];
-        const imageData = await ImageUtils.loadImage(imageInfo.data);
-        
-        // Attach metadata to imageData for tracking
-        imageData.hash = imageInfo.hash;
-        imageData.filename = imageInfo.filename;
-        
-        const runs = this.getRunCount(imageData);
-        
-        console.log(`Running ${runs} iterations for ${testType}`);
-        console.log(`Image size: ${imageData.width}x${imageData.height} (${(imageData.width * imageData.height / 1_000_000).toFixed(2)} MP)`);
-        
-        // Run both tests
-        await this.benchmark.runComparison(testType, imageData, runs);
-        
-        // Update chart with default metric and reset tabs
-        this.ui.updateChart(testType, 'time');
-        this.ui.setActiveMetricTab(testType, 'time');
-        
-        // Verify that results are identical
-        const isIdentical = await this.benchmark.verifyResults(testType);
-        this.ui.showVerificationBadge(testType, isIdentical);
-        
-        if (!isIdentical) {
-            console.warn('JS and WASM results differ! This may indicate a bug.');
+    /**
+     * Generate simple hash from image data
+     */
+    async generateImageHash(dataUrl) {
+        const img = await ImageUtils.loadImage(dataUrl);
+        let hash = 0;
+        for (let i = 0; i < Math.min(400, img.data.length); i++) {
+            hash = ((hash << 5) - hash) + img.data[i];
+            hash = hash & hash;
         }
-        
-    } catch (error) {
-        console.error('Test failed:', error);
-        this.ui.showError(testType, error.message || 'Test execution failed');
-    } finally {
-        // Re-enable button
-        this.ui.setButtonRunning(testType, false);
+        return hash.toString(16);
     }
-}
+
+    /**
+     * Handle test execution
+     */
+    async handleRunTest(event) {
+        const testType = event.target.dataset.test;
+        
+        // Disable button and show running state
+        this.ui.setButtonRunning(testType, true);
+
+        try {
+            const imageInfo = this.currentImages[testType];
+            const imageData = await ImageUtils.loadImage(imageInfo.data);
+            
+            // Attach metadata to imageData for tracking
+            imageData.hash = imageInfo.hash;
+            imageData.filename = imageInfo.filename;
+            
+            const runs = this.getRunCount(imageData);
+            
+            console.log(`Running ${runs} iterations for ${testType}`);
+            console.log(`Image size: ${imageData.width}x${imageData.height} (${(imageData.width * imageData.height / 1_000_000).toFixed(2)} MP)`);
+            
+            // Run both tests
+            await this.benchmark.runComparison(testType, imageData, runs);
+            
+            // Update chart with default metric and reset tabs
+            this.ui.updateChart(testType, 'time');
+            this.ui.setActiveMetricTab(testType, 'time');
+            
+            // Verify that results are identical
+            const isIdentical = await this.benchmark.verifyResults(testType);
+            this.ui.showVerificationBadge(testType, isIdentical);
+            
+            if (!isIdentical) {
+                console.warn('JS and WASM results differ! This may indicate a bug.');
+            }
+            
+        } catch (error) {
+            console.error('Test failed:', error);
+            this.ui.showError(testType, error.message || 'Test execution failed');
+        } finally {
+            // Re-enable button
+            this.ui.setButtonRunning(testType, false);
+        }
+    }
 
     /**
      * Handle metric tab change
