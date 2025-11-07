@@ -1,357 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAssembly vs JavaScript | Performance Comparison</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>
-            <span class="js">JavaScript</span>
-            <span class="vs">vs</span>
-            <span class="wasm">WebAssembly</span>
-        </h1>
-        <p>
-            A practical performance comparison of CPU-intensive image processing tasks. 
-        </p>
-        <div class="scroll-indicator"></div>
-    </section>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>WebAssembly vs JavaScript | Performance Comparison</title>
+		<link rel="stylesheet" href="css/styles.css" />
+	</head>
+	<body>
+		<!-- Hero Section -->
+		<section class="hero">
+			<h1>
+				<span class="js">JavaScript</span>
+				<span class="vs">vs</span>
+				<span class="wasm">WebAssembly</span>
+			</h1>
+			<p>A practical performance comparison of CPU-intensive image processing tasks.</p>
+			<div class="scroll-indicator"></div>
+		</section>
 
-    <div class="container">
-        <!-- Info Section -->
-        <section class="info-section">
-            <div class="info-box">
-                <h2>// About This Research</h2>
-                <p>
-                    This interactive demonstration compares the performance of JavaScript and WebAssembly 
-                    on computationally intensive image processing tasks. WebAssembly promises near-native 
-                    execution speeds by providing a low-level binary format that runs alongside JavaScript 
-                    in the browser.
-                </p>
-            </div>
+		<div class="container">
+			<!-- Info Section -->
+			<section class="info-section">
+				<div class="info-box">
+					<h2>// About This Research</h2>
+					<p>
+						This interactive demonstration compares the performance of JavaScript and WebAssembly on
+						various image processing tasks. WebAssembly promises near-native execution speeds by
+						providing a low-level binary format that runs alongside JavaScript in the browser.
+					</p>
+				</div>
 
-            <div class="info-box">
-                <h2>// Why Image Processing?</h2>
-                <p>
-                    Image manipulation represents one of the most common CPU-intensive workloads on the web. 
-                    From social media filters to professional editing tools, these operations push browsers 
-                    to their computational limits—making them ideal for performance benchmarking.
-                </p>
-            </div>
+				<div class="info-box">
+					<h2>// Why Image Processing?</h2>
+					<p>
+						Image manipulation represents one of the most common CPU-intensive workloads on the web.
+						From social media filters to professional editing tools, these operations push browsers
+						to their computational limits—making them good for performance benchmarking.
+					</p>
+				</div>
 
-            <div class="info-box">
-                <h2>// Measured Metrics</h2>
-                <ul class="metrics-list">
-                    <li><strong>Execution Time:</strong> Total processing duration in <code style="color:greenyellow">milliseconds</code></li>
-                    <li><strong>Throughput:</strong> Megapixels processed per <code style="color:greenyellow">second</code></li>
-                </ul>
-            </div>
-        </section>
+				<div class="info-box">
+					<h2>// Measured Metrics</h2>
+					<ul class="metrics-list">
+						<li>
+							<strong>Execution Time:</strong> Total processing duration in
+							<code style="color: greenyellow">milliseconds</code>
+						</li>
+						<li>
+							<strong>Cold start:</strong> Time taken for the first run, including any
+							initialization overhead
+						</li>
+						<li>
+							<strong>Pixel Rate:</strong> Number of pixels processed per second (<code
+								style="color: greenyellow"
+								>MP/s</code
+							>)
+						</li>
+						<li>
+							<strong>Consistency:</strong> Variability in execution time across multiple runs
+							(lower is better)
+						</li>
+					</ul>
+				</div>
+			</section>
 
-        <!-- Benchmark Section -->
-        <section class="benchmark-section">
-            <h2 class="benchmark-title">→ Performance Benchmarks</h2>
+			<!-- Benchmark Section -->
+			<section class="benchmark-section">
+				<h2 class="benchmark-title">→ Performance Benchmarks</h2>
 
-            <!-- Test 1: Color Inversion -->
-            <div class="test-item" data-test="invert">
-                <div class="test-header">
-                    <div class="test-number">Test 01</div>
-                    <h3 class="test-title">Color Inversion</h3>
-                    <p class="test-description">Lightweight operation - inverting RGB values pixel by pixel</p>
-                </div>
+				<!-- Test 1: Color Inversion -->
+				<div class="test-item" data-test="invert">
+					<div class="test-header">
+						<div class="test-number">Test 01</div>
+						<h3 class="test-title">Color Inversion</h3>
+						<p class="test-description">
+							Lightweight operation - inverting RGB values pixel by pixel
+						</p>
+					</div>
 
-                <div class="gradient-divider"></div>
-                <div style="text-align: center; margin: 1rem 0;">
-                    <div class="verification-badge">Results Verified Identical</div>
-                </div>
-                <!-- Image Comparison -->
-                <div class="image-comparison">
-                    <div class="image-container" data-side="js">
-                        <div class="dimension-indicators">
-                            <div class="dimension-width">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                            <div class="dimension-height">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                        </div>
-                        <div class="image-label">JavaScript</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Click "Select Image" below</div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
+					<div class="gradient-divider"></div>
+					<div style="text-align: center; margin: 1rem 0">
+						<div class="verification-badge">Results Verified Identical</div>
+					</div>
+					<!-- Image Comparison -->
+					<div class="image-comparison">
+						<div class="image-container" data-side="js">
+							<div class="dimension-indicators">
+								<div class="dimension-width">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+								<div class="dimension-height">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+							</div>
+							<div class="image-label">JavaScript</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Click "Select Image" below</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
 
-                    <div class="image-container" data-side="wasm">
-                        <div class="image-label">WebAssembly</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Same image as JavaScript</div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
-                </div>
+						<div class="image-container" data-side="wasm">
+							<div class="image-label">WebAssembly</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Same image as JavaScript</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
+					</div>
 
-                <!-- Control Center -->
-                <div class="control-center">
-                    <button class="upload-button" data-test="invert">
-                        📁 Select Image
-                    </button>
-                    <button class="run-test-button" data-test="invert" disabled>
-                        ▶ Run Complete Test
-                    </button>
-                </div>
-                <input type="file" class="hidden-file-input" accept="image/*" data-test="invert">
+					<!-- Control Center -->
+					<div class="control-center">
+						<button class="upload-button" data-test="invert">📁 Select Image</button>
+						<button class="run-test-button" data-test="invert" disabled>▶ Run Complete Test</button>
+					</div>
+					<input type="file" class="hidden-file-input" accept="image/*" data-test="invert" />
 
-                <!-- Speedup Summary -->
-                <div class="speedup-summary"></div>
+					<!-- Speedup Summary -->
+					<div class="speedup-summary"></div>
 
-                <!-- Results Dashboard -->
-                <div class="results-dashboard">
-                    <div class="dashboard-header">
-                        <div class="results-label">⟩ Performance Analysis</div>
-                        <div class="metric-selector">
-                                <button class="metric-tab active" data-metric="time">Execution Time</button>
-                                <button class="metric-tab" data-metric="warmup">Cold Start</button>
-                                <button class="metric-tab" data-metric="pixelRate">Pixel Rate</button>
-                                <button class="metric-tab" data-metric="consistency">Consistency</button>
-                        </div>
-                    </div>
+					<!-- Results Dashboard -->
+					<div class="results-dashboard">
+						<div class="dashboard-header">
+							<div class="results-label">⟩ Performance Analysis</div>
+							<div class="metric-selector">
+								<button class="metric-tab active" data-metric="time">Execution Time</button>
+								<button class="metric-tab" data-metric="warmup">Cold Start</button>
+								<button class="metric-tab" data-metric="pixelRate">Pixel Rate</button>
+								<button class="metric-tab" data-metric="consistency">Consistency</button>
+							</div>
+						</div>
 
-                    <div class="chart-container">
-                        <div class="empty-state">
-                            Run tests to see performance comparison
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="chart-container">
+							<div class="empty-state">Run tests to see performance comparison</div>
+						</div>
+					</div>
+				</div>
 
-            <!-- Test 2: Gaussian Blur -->
-            <div class="test-item" data-test="blur">
-                <div class="test-header">
-                    <div class="test-number">Test 02</div>
-                    <h3 class="test-title">Gaussian Blur</h3>
-                    <p class="test-description">Medium-weight operation - applying convolution matrix to smooth images</p>
-                </div>
+				<!-- Test 2: Gaussian Blur -->
+				<div class="test-item" data-test="blur">
+					<div class="test-header">
+						<div class="test-number">Test 02</div>
+						<h3 class="test-title">Gaussian Blur</h3>
+						<p class="test-description">
+							Medium-weight operation - applying convolution matrix to smooth images
+						</p>
+					</div>
 
-                <div class="gradient-divider"></div>
-                <div style="text-align: center; margin: 1rem 0;">
-                    <div class="verification-badge">Results Verified Identical</div>
-                </div>
-                <div class="image-comparison">
-                    <div class="image-container" data-side="js">
-                        <div class="dimension-indicators">
-                            <div class="dimension-width">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                            <div class="dimension-height">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                        </div>
-                        <div class="image-label">JavaScript</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Click "Select Image" below</div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
+					<div class="gradient-divider"></div>
+					<div style="text-align: center; margin: 1rem 0">
+						<div class="verification-badge">Results Verified Identical</div>
+					</div>
+					<div class="image-comparison">
+						<div class="image-container" data-side="js">
+							<div class="dimension-indicators">
+								<div class="dimension-width">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+								<div class="dimension-height">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+							</div>
+							<div class="image-label">JavaScript</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Click "Select Image" below</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
 
-                    <div class="image-container" data-side="wasm">
-                        <div class="image-label">WebAssembly</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Same image as JavaScript</div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
-                </div>
+						<div class="image-container" data-side="wasm">
+							<div class="image-label">WebAssembly</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Same image as JavaScript</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
+					</div>
 
-                <div class="control-center">
-                    <button class="upload-button" data-test="blur">
-                        📁 Select Image
-                    </button>
-                    <button class="run-test-button" data-test="blur" disabled>
-                        ▶ Run Complete Test
-                    </button>
-                </div>
-                <input type="file" class="hidden-file-input" accept="image/*" data-test="blur">
+					<div class="control-center">
+						<button class="upload-button" data-test="blur">📁 Select Image</button>
+						<button class="run-test-button" data-test="blur" disabled>▶ Run Complete Test</button>
+					</div>
+					<input type="file" class="hidden-file-input" accept="image/*" data-test="blur" />
 
-                <div class="results-dashboard">
-                    <div class="dashboard-header">
-                        <div class="results-label">⟩ Performance Analysis</div>
-                        <div class="metric-selector">
-                            <button class="metric-tab active" data-metric="time">Execution Time</button>
-                            <button class="metric-tab" data-metric="memory">Memory Usage</button>
-                        </div>
-                    </div>
+					<div class="results-dashboard">
+						<div class="dashboard-header">
+							<div class="results-label">⟩ Performance Analysis</div>
+							<div class="metric-selector">
+								<button class="metric-tab active" data-metric="time">Execution Time</button>
+								<button class="metric-tab" data-metric="memory">Memory Usage</button>
+							</div>
+						</div>
 
-                    <div class="chart-container">
-                        <div class="empty-state">
-                            Run tests to see performance comparison
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="chart-container">
+							<div class="empty-state">Run tests to see performance comparison</div>
+						</div>
+					</div>
+				</div>
 
-            <!-- Test 3: Batch Processing -->
-            <div class="test-item" data-test="batch">
-                <div class="test-header">
-                    <div class="test-number">Test 03</div>
-                    <h3 class="test-title">Batch Processing</h3>
-                    <p class="test-description">High-intensity operation - processing multiple frames from video sequentially</p>
-                </div>
+				<!-- Test 3: Batch Processing -->
+				<div class="test-item" data-test="batch">
+					<div class="test-header">
+						<div class="test-number">Test 03</div>
+						<h3 class="test-title">Batch Processing</h3>
+						<p class="test-description">
+							High-intensity operation - processing multiple frames from video sequentially
+						</p>
+					</div>
 
-                <div class="gradient-divider"></div>
-                <div style="text-align: center; margin: 1rem 0;">
-                    <div class="verification-badge">Results Verified Identical</div>
-                </div>
-                <div class="image-comparison">
-                    <div class="image-container" data-side="js">
-                        <div class="dimension-indicators">
-                            <div class="dimension-width">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                            <div class="dimension-height">
-                                <div class="dimension-line"></div>
-                                <div class="dimension-label"><span class="dim-value">0</span> px</div>
-                            </div>
-                        </div>
-                        <div class="image-label">JavaScript</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Upload image or video (&lt;20s)</div>
-            </div>
-        <div class="batch-preview">
-        <div class="batch-stack">
-            <div class="batch-layer">Frame 5</div>
-                                <div class="batch-layer">Frame 4</div>
-                <div class="batch-layer">Frame 3</div>
-                                <div class="batch-layer">Frame 2</div>
-                                <div class="batch-layer">Frame 1</div>
-                            </div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
+					<div class="gradient-divider"></div>
+					<div style="text-align: center; margin: 1rem 0">
+						<div class="verification-badge">Results Verified Identical</div>
+					</div>
+					<div class="image-comparison">
+						<div class="image-container" data-side="js">
+							<div class="dimension-indicators">
+								<div class="dimension-width">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+								<div class="dimension-height">
+									<div class="dimension-line"></div>
+									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								</div>
+							</div>
+							<div class="image-label">JavaScript</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Upload image or video (&lt;20s)</div>
+							</div>
+							<div class="batch-preview">
+								<div class="batch-stack">
+									<div class="batch-layer">Frame 5</div>
+									<div class="batch-layer">Frame 4</div>
+									<div class="batch-layer">Frame 3</div>
+									<div class="batch-layer">Frame 2</div>
+									<div class="batch-layer">Frame 1</div>
+								</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
 
-                    <div class="image-container" data-side="wasm">
-                        <div class="image-label">WebAssembly</div>
-                        <div class="countdown-overlay">3</div>
-                        <div class="image-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            <div class="upload-hint">Same content as JavaScript</div>
-                        </div>
-                        <div class="batch-preview">
-                            <div class="batch-stack">
-                                <div class="batch-layer">Frame 5</div>
-                                <div class="batch-layer">Frame 4</div>
-                                <div class="batch-layer">Frame 3</div>
-                                <div class="batch-layer">Frame 2</div>
-                                <div class="batch-layer">Frame 1</div>
-                            </div>
-                        </div>
-                        <img class="actual-image" src="" alt="Processing result">
-                    </div>
-            </div>
-            
-                <div class="control-center">
-        <button class="upload-button" data-test="batch">
-                📁 Select Image/Video
-                    </button>
-                <button class="run-test-button" data-test="batch" disabled>
-                        ▶ Run Complete Test
-                    </button>
-                </div>
-                <input type="file" class="hidden-file-input" accept="image/*,video/*" data-test="batch">
+						<div class="image-container" data-side="wasm">
+							<div class="image-label">WebAssembly</div>
+							<div class="countdown-overlay">3</div>
+							<div class="image-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21 15 16 10 5 21"></polyline>
+								</svg>
+								<div class="upload-hint">Same content as JavaScript</div>
+							</div>
+							<div class="batch-preview">
+								<div class="batch-stack">
+									<div class="batch-layer">Frame 5</div>
+									<div class="batch-layer">Frame 4</div>
+									<div class="batch-layer">Frame 3</div>
+									<div class="batch-layer">Frame 2</div>
+									<div class="batch-layer">Frame 1</div>
+								</div>
+							</div>
+							<img class="actual-image" src="" alt="Processing result" />
+						</div>
+					</div>
 
-                <div class="results-dashboard">
-                    <div class="dashboard-header">
-                        <div class="results-label">⟩ Performance Analysis</div>
-                        <div class="metric-selector">
-                            <button class="metric-tab active" data-metric="time">Execution Time</button>
-                            <button class="metric-tab" data-metric="memory">Memory Usage</button>
-                        </div>
-                    </div>
+					<div class="control-center">
+						<button class="upload-button" data-test="batch">📁 Select Image/Video</button>
+						<button class="run-test-button" data-test="batch" disabled>▶ Run Complete Test</button>
+					</div>
+					<input type="file" class="hidden-file-input" accept="image/*,video/*" data-test="batch" />
 
-                    <div class="chart-container">
-                        <div class="empty-state">
-                            Run tests to see performance comparison
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-           <!-- Methodology Section -->
-           <section class="info-section">
-            <div class="info-box">
-                <h2>// Methodology</h2>
-                <p>
-                    Each test runs multiple iterations (1-30 depending on image size) to ensure statistical reliability. 
-                    Results show the <code style="color: greenyellow">median</code> value to reduce the impact of outliers caused by browser 
-                    garbage collection or system processes.
-                </p>
-                <p style="margin-top: 1rem;">
-                    The winner is determined after all tests complete, and results are displayed in order <code style="color: greenyellow">winner first</code> 
-                    with visual timing based on actual performance differences. 
-                </p>
-        </section>
-        <section>
-            <div class="info-box">
-                <h2>// Limitations</h2>
-                <ul class="metrics-list">
-                    <li><strong>Memory Measurement:</strong> Only available in Chrome (uses non-standard <code style="color: greenyellow; background-color: transparent;">performance.memory</code> API)</li>
-                    <li><strong>Browser Differences:</strong> Results may vary between browsers due to different JIT compilers and WASM implementations</li>
-                    <li><strong>System Load:</strong> Background processes can affect results - close other tabs for best accuracy</li>
-                    <li><strong>First-Run Overhead:</strong> WASM initialization cost is included in first test run (realistic for production)</li>
-                </ul>
-            </div>
-        </section>
-    </div>
+					<div class="results-dashboard">
+						<div class="dashboard-header">
+							<div class="results-label">⟩ Performance Analysis</div>
+							<div class="metric-selector">
+								<button class="metric-tab active" data-metric="time">Execution Time</button>
+								<button class="metric-tab" data-metric="memory">Memory Usage</button>
+							</div>
+						</div>
 
-    <footer>
-        <p>Bachelor's Thesis | Information Technology | 2025</p>
-        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-            Developed by <strong style="color: var(--text-highlight);">Andrei Gulin</strong>
-        </p>
-    </footer>
+						<div class="chart-container">
+							<div class="empty-state">Run tests to see performance comparison</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Methodology Section -->
+			<section class="info-section">
+				<div class="info-box">
+					<h2>// Methodology</h2>
+					<p>
+						Each test runs multiple iterations (1-30 depending on image size) to ensure statistical
+						reliability. Results show the
+						<code style="color: greenyellow">median</code> value to reduce the impact of outliers
+						caused by browser garbage collection or system processes.
+					</p>
+					<p style="margin-top: 1rem">
+						The winner is determined after all tests complete, and results are displayed in order
+						<code style="color: greenyellow">winner first</code>
+						with visual timing based on actual performance differences.
+					</p>
+				</div>
+			</section>
+			<section>
+				<div class="info-box">
+					<h2>// Limitations</h2>
+					<ul class="metrics-list">
+						<li>
+							<strong>Memory Measurement:</strong> Only available in Chrome (uses non-standard
+							<code style="color: greenyellow; background-color: transparent"
+								>performance.memory</code
+							>
+							API)
+						</li>
+						<li>
+							<strong>Browser Differences:</strong> Results may vary between browsers due to
+							different JIT compilers and WASM implementations
+						</li>
+						<li>
+							<strong>System Load:</strong> Background processes can affect results - close other
+							tabs for best accuracy
+						</li>
+						<li>
+							<strong>First-Run Overhead:</strong> WASM initialization cost is included in first
+							test run (realistic for production)
+						</li>
+					</ul>
+				</div>
+			</section>
+		</div>
 
-    <script src="js/app.js" type="module"></script>
-</body>
+		<footer>
+			<p>Bachelor's Thesis | Information Technology | 2025</p>
+			<p style="margin-top: 0.5rem; font-size: 0.9rem">
+				Developed by
+				<strong style="color: var(--text-highlight)">Andrei Gulin</strong>
+			</p>
+		</footer>
+
+		<script src="js/app.js" type="module"></script>
+	</body>
 </html>
