@@ -1,0 +1,206 @@
+/* Test Item */
+.test-item {
+	margin-bottom: 8rem;
+	position: relative;
+}
+
+.test-header {
+	text-align: center;
+	margin-bottom: 3rem;
+}
+
+.test-number {
+	display: inline-block;
+	padding: 0.4rem 0.9rem;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+	font-family: "Courier New", monospace;
+	font-size: 0.75rem;
+	letter-spacing: 1.5px;
+	color: var(--text-highlight);
+	font-weight: 600;
+	margin-bottom: 0.75rem;
+}
+
+/* Title */
+.test-title {
+	font-size: 2rem;
+	margin: 0.5rem 0;
+	background: linear-gradient(135deg, var(--accent-js) 0%, var(--accent-wasm) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	font-weight: 700;
+	line-height: 1.3;
+	transition: all 0.3s ease;
+}
+
+.test-description {
+	color: var(--text-secondary);
+	font-size: 0.95rem;
+	font-style: italic;
+}
+
+/* Verification Badge */
+.verification-badge {
+	display: none;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 1.2rem;
+	background: rgba(0, 255, 0, 0.05);
+	border: 1px solid rgba(0, 255, 0, 0.2);
+	border-radius: 20px;
+	color: var(--text-highlight);
+	font-size: 0.75rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	margin: 0 auto;
+	max-width: fit-content;
+}
+
+.verification-badge.active {
+	display: inline-flex;
+	animation: fadeIn 0.5s ease;
+}
+
+.verification-badge::before {
+	content: "✓";
+	font-size: 1rem;
+}
+
+.verification-badge.error {
+	background: rgba(255, 68, 68, 0.05);
+	border-color: rgba(255, 68, 68, 0.3);
+	color: #ff4444;
+}
+
+.verification-badge.error::before {
+	content: "✗";
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.verification-container {
+	text-align: center;
+	margin: 1.5rem 0;
+	position: relative;
+}
+
+.verification-badge {
+	display: inline-block;
+	padding: 0.6rem 1.5rem;
+	background: rgba(0, 0, 0, 0.4);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	font-family: "Courier New", monospace;
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+	opacity: 0;
+	transform: translateY(-10px);
+	transition: all 0.3s ease;
+}
+
+.verification-badge.active {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.verification-badge.verified {
+	border-color: rgba(0, 255, 0, 0.3);
+	color: var(--text-highlight);
+	box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.verification-badge.error {
+	border-color: rgba(255, 68, 68, 0.3);
+	color: #ff4444;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Keep content area clean */
+.test-content {
+	min-width: 0; /* Prevent grid blowout */
+}
+
+/* Sticky header */
+/* Sticky Bottom Headers */
+.hidden-sticky-header {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0, 0, 21, 0.98);
+	backdrop-filter: blur(10px);
+	border-top: 2px solid rgba(255, 255, 255, 0.1);
+	padding: 1rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: "Courier New", monospace;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-primary);
+	z-index: 100;
+	opacity: 0;
+	transform: translateY(100%);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+	pointer-events: none;
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.hidden-sticky-header.active {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+/* Test number badge in sticky header */
+.hidden-sticky-header .test-number-badge {
+	display: inline-block;
+	padding: 0.3rem 0.7rem;
+	border: 1px solid rgba(0, 255, 0, 0.3);
+	border-radius: 4px;
+	font-size: 0.75rem;
+	letter-spacing: 1px;
+	color: var(--text-highlight);
+	margin-right: 1rem;
+	background: rgba(0, 255, 0, 0.05);
+}
+
+/* Gradient effect on the title text */
+.hidden-sticky-header .test-title-text {
+	background: linear-gradient(135deg, var(--accent-js) 0%, var(--accent-wasm) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	font-weight: 700;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+	.hidden-sticky-header {
+		font-size: 0.85rem;
+		padding: 0.75rem 1rem;
+	}
+
+	.hidden-sticky-header .test-number-badge {
+		font-size: 0.65rem;
+		padding: 0.25rem 0.5rem;
+		margin-right: 0.5rem;
+	}
+}

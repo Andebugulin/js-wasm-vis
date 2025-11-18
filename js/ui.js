@@ -31,23 +31,26 @@ export class UI {
 					heightLabel.textContent = actualImage.naturalHeight;
 				}
 			};
-
-			// Batch preview handling
-			if (testType === "batch") {
-				const batchPreview = container.querySelector(".batch-preview");
-				if (batchPreview) {
-					batchPreview.classList.add("active");
-					const layers = batchPreview.querySelectorAll(".batch-layer");
-					layers.forEach((layer, i) => {
-						layer.style.backgroundImage = `url(${dataUrl})`;
-						layer.textContent = "";
-						const offset = i * 35;
-						layer.style.transform = `translate(${offset}px, ${offset}px)`;
-						layer.style.zIndex = layers.length - i;
-					});
-				}
-			}
 		});
+		const originalContainer = testItem.querySelector('.image-container[data-side="original"]');
+		if (originalContainer) {
+			originalContainer.classList.add("has-image");
+			const placeholder = originalContainer.querySelector(".image-placeholder");
+			const actualImage = originalContainer.querySelector(".actual-image");
+
+			placeholder.style.display = "none";
+			actualImage.src = dataUrl;
+			actualImage.classList.add("visible");
+
+			actualImage.onload = () => {
+				const widthLabel = originalContainer.querySelector(".dimension-width .dim-value");
+				const heightLabel = originalContainer.querySelector(".dimension-height .dim-value");
+				if (widthLabel && heightLabel) {
+					widthLabel.textContent = actualImage.naturalWidth;
+					heightLabel.textContent = actualImage.naturalHeight;
+				}
+			};
+		}
 	}
 
 	showVideoPreview(testType, file) {
@@ -178,10 +181,10 @@ export class UI {
 			return;
 		}
 
-		const metricConfig = METRIC_DISPLAY[metric];
+		const metricConfig = METRIC_DISPLAY[testType]?.[metric];
 
 		if (!metricConfig) {
-			console.error(`Unknown metric: ${metric}`);
+			console.error(`Unknown metric: ${metric} for test: ${testType}`);
 			return;
 		}
 

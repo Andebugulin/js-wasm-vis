@@ -4,7 +4,20 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>WebAssembly vs JavaScript | Performance Comparison</title>
+		<link rel="stylesheet" href="css/1global.css" />
+		<link rel="stylesheet" href="css/2layout.css" />
+		<link rel="stylesheet" href="css/3hero.css" />
+		<link rel="stylesheet" href="css/4info.css" />
+		<link rel="stylesheet" href="css/5benchmark.css" />
+		<link rel="stylesheet" href="css/6test_item.css" />
+		<link rel="stylesheet" href="css/7gradient_divider.css" />
+		<link rel="stylesheet" href="css/8image_comparison.css" />
+		<link rel="stylesheet" href="css/9file_input.css" />
+		<link rel="stylesheet" href="css/10speed_summary.css" />
+		<link rel="stylesheet" href="css/11results.css" />
+		<link rel="stylesheet" href="css/12footer.css" />
 		<link rel="stylesheet" href="css/styles.css" />
+		<script src="css/sticky_headers.js" type="module"></script>
 	</head>
 	<body>
 		<!-- Hero Section -->
@@ -78,75 +91,104 @@
 						</p>
 					</div>
 
-					<div class="gradient-divider"></div>
-					<div style="text-align: center; margin: 1rem 0">
-						<div class="verification-badge">Results Verified Identical</div>
+					<!-- Hidden Sticky Header -->
+					<div class="hidden-sticky-header">
+						<span class="test-number-badge">Test 01</span>
+						<span class="test-title-text">Color Inversion</span>
 					</div>
-					<!-- Image Comparison -->
-					<div class="image-comparison">
-						<div class="image-container" data-side="js">
-							<div class="dimension-indicators">
-								<div class="dimension-width">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+
+					<div class="test-content">
+						<!-- Everything else stays inside test-content -->
+
+						<div class="gradient-divider"></div>
+						<!-- Original Image on top -->
+						<div class="image-comparison" style="grid-template-columns: 1fr; margin-bottom: 1rem">
+							<div class="image-container" data-side="original">
+								<div class="dimension-indicators">
+									<div class="dimension-width">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
+									<div class="dimension-height">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
 								</div>
-								<div class="dimension-height">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								<div class="image-label">Original</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Original uploaded image</div>
+								</div>
+								<img class="actual-image" src="" alt="Original" />
+							</div>
+						</div>
+
+						<!-- Verification Badge (centered between original and results) -->
+						<div style="text-align: center; margin: 1rem 0">
+							<div class="verification-badge">Results Verified Identical</div>
+						</div>
+
+						<div class="image-comparison" style="grid-template-columns: 1fr 1fr">
+							<div class="image-container" data-side="js">
+								<div class="image-label">JavaScript</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Click "Select Image" below</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+
+							<div class="image-container" data-side="wasm">
+								<div class="image-label">WebAssembly</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Same image as JavaScript</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+						</div>
+
+						<!-- Control Center -->
+						<div class="control-center">
+							<button class="upload-button" data-test="invert">📁 Select Image</button>
+							<button class="run-test-button" data-test="invert" disabled>
+								▶ Run Complete Test
+							</button>
+						</div>
+						<input type="file" class="hidden-file-input" accept="image/*" data-test="invert" />
+
+						<!-- Speedup Summary -->
+						<div class="speedup-summary"></div>
+
+						<!-- Results Dashboard -->
+						<div class="results-dashboard">
+							<div class="dashboard-header">
+								<div class="results-label">⟩ Performance Analysis</div>
+								<div class="metric-selector">
+									<button class="metric-tab active" data-metric="time">Execution Time</button>
+									<button class="metric-tab" data-metric="warmup">Cold Start</button>
+									<button class="metric-tab" data-metric="pixelRate">Pixel Rate</button>
+									<button class="metric-tab" data-metric="consistency">Consistency</button>
 								</div>
 							</div>
-							<div class="image-label">JavaScript</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Click "Select Image" below</div>
+
+							<div class="chart-container">
+								<div class="empty-state">Run tests to see performance comparison</div>
 							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
-
-						<div class="image-container" data-side="wasm">
-							<div class="image-label">WebAssembly</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Same image as JavaScript</div>
-							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
-					</div>
-
-					<!-- Control Center -->
-					<div class="control-center">
-						<button class="upload-button" data-test="invert">📁 Select Image</button>
-						<button class="run-test-button" data-test="invert" disabled>▶ Run Complete Test</button>
-					</div>
-					<input type="file" class="hidden-file-input" accept="image/*" data-test="invert" />
-
-					<!-- Speedup Summary -->
-					<div class="speedup-summary"></div>
-
-					<!-- Results Dashboard -->
-					<div class="results-dashboard">
-						<div class="dashboard-header">
-							<div class="results-label">⟩ Performance Analysis</div>
-							<div class="metric-selector">
-								<button class="metric-tab active" data-metric="time">Execution Time</button>
-								<button class="metric-tab" data-metric="warmup">Cold Start</button>
-								<button class="metric-tab" data-metric="pixelRate">Pixel Rate</button>
-								<button class="metric-tab" data-metric="consistency">Consistency</button>
-							</div>
-						</div>
-
-						<div class="chart-container">
-							<div class="empty-state">Run tests to see performance comparison</div>
 						</div>
 					</div>
 				</div>
@@ -155,73 +197,115 @@
 				<div class="test-item" data-test="blur">
 					<div class="test-header">
 						<div class="test-number">Test 02</div>
-						<h3 class="test-title">Gaussian Blur</h3>
+						<h3 class="test-title">Color Quantization (K-Means)</h3>
 						<p class="test-description">
-							Medium-weight operation - applying convolution matrix to smooth images
+							Medium-weight operation - reducing colors using K-Means clustering algorithm
 						</p>
 					</div>
 
-					<div class="gradient-divider"></div>
-					<div style="text-align: center; margin: 1rem 0">
-						<div class="verification-badge">Results Verified Identical</div>
+					<!-- Hidden Sticky Header -->
+					<div class="hidden-sticky-header">
+						<span class="test-number-badge">Test 02</span>
+						<span class="test-title-text">Color Quantization (K-Means)</span>
 					</div>
-					<div class="image-comparison">
-						<div class="image-container" data-side="js">
-							<div class="dimension-indicators">
-								<div class="dimension-width">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+
+					<div class="test-content">
+						<div class="gradient-divider"></div>
+
+						<div class="image-comparison" style="grid-template-columns: 1fr; margin-bottom: 1rem">
+							<div class="image-container" data-side="original">
+								<div class="dimension-indicators">
+									<div class="dimension-width">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
+									<div class="dimension-height">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
 								</div>
-								<div class="dimension-height">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
+								<div class="image-label">Original</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Original uploaded image</div>
+								</div>
+								<img class="actual-image" src="" alt="Original" />
+							</div>
+						</div>
+
+						<!-- Verification Badge (centered between original and results) -->
+						<div style="text-align: center; margin: 1rem 0">
+							<div class="verification-badge">Results Verified Identical</div>
+						</div>
+						<div class="image-comparison" style="grid-template-columns: 1fr 1fr">
+							<div class="image-container" data-side="js">
+								<div class="image-label">JavaScript</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Click "Select Image" below</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+
+							<div class="image-container" data-side="wasm">
+								<div class="image-label">WebAssembly</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Same image as JavaScript</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+						</div>
+
+						<div class="control-center">
+							<div class="color-selector-wrapper">
+								<label for="color-count-blur" class="color-label">Output Colors:</label>
+								<input
+									type="number"
+									id="color-count-blur"
+									class="color-input"
+									min="2"
+									max="256"
+									value="256"
+									data-test="blur"
+								/>
+								<span class="color-hint">(2-256 colors)</span>
+							</div>
+							<button class="upload-button" data-test="blur">📁 Select Image</button>
+							<button class="run-test-button" data-test="blur" disabled>▶ Run Complete Test</button>
+						</div>
+						<input type="file" class="hidden-file-input" accept="image/*" data-test="blur" />
+
+						<!-- Speedup Summary -->
+						<div class="speedup-summary"></div>
+
+						<div class="results-dashboard">
+							<div class="dashboard-header">
+								<div class="results-label">⟩ Performance Analysis</div>
+								<div class="metric-selector">
+									<button class="metric-tab active" data-metric="time">Execution Time</button>
+									<button class="metric-tab" data-metric="warmup">Cold Start</button>
+									<button class="metric-tab" data-metric="consistency">Consistency</button>
 								</div>
 							</div>
-							<div class="image-label">JavaScript</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Click "Select Image" below</div>
+
+							<div class="chart-container">
+								<div class="empty-state">Run tests to see performance comparison</div>
 							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
-
-						<div class="image-container" data-side="wasm">
-							<div class="image-label">WebAssembly</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Same image as JavaScript</div>
-							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
-					</div>
-
-					<div class="control-center">
-						<button class="upload-button" data-test="blur">📁 Select Image</button>
-						<button class="run-test-button" data-test="blur" disabled>▶ Run Complete Test</button>
-					</div>
-					<input type="file" class="hidden-file-input" accept="image/*" data-test="blur" />
-
-					<div class="results-dashboard">
-						<div class="dashboard-header">
-							<div class="results-label">⟩ Performance Analysis</div>
-							<div class="metric-selector">
-								<button class="metric-tab active" data-metric="time">Execution Time</button>
-								<button class="metric-tab" data-metric="memory">Memory Usage</button>
-							</div>
-						</div>
-
-						<div class="chart-container">
-							<div class="empty-state">Run tests to see performance comparison</div>
 						</div>
 					</div>
 				</div>
@@ -236,85 +320,99 @@
 						</p>
 					</div>
 
-					<div class="gradient-divider"></div>
-					<div style="text-align: center; margin: 1rem 0">
-						<div class="verification-badge">Results Verified Identical</div>
-					</div>
-					<div class="image-comparison">
-						<div class="image-container" data-side="js">
-							<div class="dimension-indicators">
-								<div class="dimension-width">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
-								</div>
-								<div class="dimension-height">
-									<div class="dimension-line"></div>
-									<div class="dimension-label"><span class="dim-value">0</span> px</div>
-								</div>
-							</div>
-							<div class="image-label">JavaScript</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Upload image or video (&lt;20s)</div>
-							</div>
-							<div class="batch-preview">
-								<div class="batch-stack">
-									<div class="batch-layer">Frame 5</div>
-									<div class="batch-layer">Frame 4</div>
-									<div class="batch-layer">Frame 3</div>
-									<div class="batch-layer">Frame 2</div>
-									<div class="batch-layer">Frame 1</div>
-								</div>
-							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
-
-						<div class="image-container" data-side="wasm">
-							<div class="image-label">WebAssembly</div>
-							<div class="countdown-overlay">3</div>
-							<div class="image-placeholder">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-									<circle cx="8.5" cy="8.5" r="1.5"></circle>
-									<polyline points="21 15 16 10 5 21"></polyline>
-								</svg>
-								<div class="upload-hint">Same content as JavaScript</div>
-							</div>
-							<div class="batch-preview">
-								<div class="batch-stack">
-									<div class="batch-layer">Frame 5</div>
-									<div class="batch-layer">Frame 4</div>
-									<div class="batch-layer">Frame 3</div>
-									<div class="batch-layer">Frame 2</div>
-									<div class="batch-layer">Frame 1</div>
-								</div>
-							</div>
-							<img class="actual-image" src="" alt="Processing result" />
-						</div>
+					<!-- Hidden Sticky Header -->
+					<div class="hidden-sticky-header">
+						<span class="test-number-badge">Test 03</span>
+						<span class="test-title-text">Batch Processing</span>
 					</div>
 
-					<div class="control-center">
-						<button class="upload-button" data-test="batch">📁 Select Image/Video</button>
-						<button class="run-test-button" data-test="batch" disabled>▶ Run Complete Test</button>
-					</div>
-					<input type="file" class="hidden-file-input" accept="image/*,video/*" data-test="batch" />
+					<div class="test-content">
+						<div class="gradient-divider"></div>
 
-					<div class="results-dashboard">
-						<div class="dashboard-header">
-							<div class="results-label">⟩ Performance Analysis</div>
-							<div class="metric-selector">
-								<button class="metric-tab active" data-metric="time">Execution Time</button>
-								<button class="metric-tab" data-metric="memory">Memory Usage</button>
+						<!-- Original Image on top -->
+						<div class="image-comparison" style="grid-template-columns: 1fr; margin-bottom: 1rem">
+							<div class="image-container" data-side="original">
+								<div class="dimension-indicators">
+									<div class="dimension-width">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
+									<div class="dimension-height">
+										<div class="dimension-line"></div>
+										<div class="dimension-label"><span class="dim-value">0</span> px</div>
+									</div>
+								</div>
+								<div class="image-label">Original</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Original uploaded image</div>
+								</div>
+								<img class="actual-image" src="" alt="Original" />
 							</div>
 						</div>
 
-						<div class="chart-container">
-							<div class="empty-state">Run tests to see performance comparison</div>
+						<!-- Verification Badge (centered between original and results) -->
+						<div style="text-align: center; margin: 1rem 0">
+							<div class="verification-badge">Results Verified Identical</div>
+						</div>
+						<div class="image-comparison" style="grid-template-columns: 1fr 1fr">
+							<div class="image-container" data-side="js">
+								<div class="image-label">JavaScript</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Click "Select Image" below</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+
+							<div class="image-container" data-side="wasm">
+								<div class="image-label">WebAssembly</div>
+								<div class="countdown-overlay">3</div>
+								<div class="image-placeholder">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+										<circle cx="8.5" cy="8.5" r="1.5"></circle>
+										<polyline points="21 15 16 10 5 21"></polyline>
+									</svg>
+									<div class="upload-hint">Same content as JavaScript</div>
+								</div>
+								<img class="actual-image" src="" alt="Processing result" />
+							</div>
+						</div>
+
+						<div class="control-center">
+							<button class="upload-button" data-test="batch">📁 Select Image</button>
+							<button class="run-test-button" data-test="batch" disabled>
+								▶ Run Complete Test
+							</button>
+						</div>
+						<input type="file" class="hidden-file-input" accept="image/*" data-test="batch" />
+
+						<!-- Speedup Summary -->
+						<div class="speedup-summary"></div>
+
+						<div class="results-dashboard">
+							<div class="dashboard-header">
+								<div class="results-label">⟩ Performance Analysis</div>
+								<div class="metric-selector">
+									<button class="metric-tab active" data-metric="time">Execution Time</button>
+									<button class="metric-tab" data-metric="warmup">Cold Start</button>
+									<button class="metric-tab" data-metric="consistency">Consistency</button>
+								</div>
+							</div>
+
+							<div class="chart-container">
+								<div class="empty-state">Run tests to see performance comparison</div>
+							</div>
 						</div>
 					</div>
 				</div>

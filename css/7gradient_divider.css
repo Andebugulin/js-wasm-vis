@@ -1,0 +1,47 @@
+/* Gradient Divider */
+.gradient-divider {
+	height: 2px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		var(--accent-js) 25%,
+		var(--accent-wasm) 75%,
+		transparent 100%
+	);
+	margin: 3rem 0;
+	position: relative;
+	animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+.gradient-divider::before,
+.gradient-divider::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	transform: translateY(-50%);
+}
+
+.gradient-divider::before {
+	left: 25%;
+	background: var(--accent-js);
+	box-shadow: 0 0 10px var(--accent-js);
+}
+
+.gradient-divider::after {
+	right: 25%;
+	background: var(--accent-wasm);
+	box-shadow: 0 0 10px var(--accent-wasm);
+}

@@ -1,0 +1,110 @@
+/* Hero Section */
+.hero {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	position: relative;
+}
+
+.hero::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(90deg, transparent 0%, var(--accent-wasm) 50%, transparent 100%),
+		linear-gradient(0deg, transparent 0%, var(--accent-js) 50%, transparent 100%);
+	opacity: 0.03;
+	animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	50% {
+		transform: translate(20px, 20px);
+	}
+}
+
+.hero h1 {
+	font-size: 3.5rem;
+	margin-bottom: 1rem;
+	animation: fadeInDown 1s ease;
+	position: relative;
+	z-index: 1;
+}
+
+.hero h1 .js {
+	color: var(--accent-js);
+	text-shadow: 0 0 20px rgba(247, 223, 30, 0.5);
+}
+
+.hero h1 .vs {
+	color: var(--text-secondary);
+	font-size: 2rem;
+	margin: 0 1rem;
+}
+
+.hero h1 .wasm {
+	color: var(--accent-wasm);
+	text-shadow: 0 0 20px rgba(101, 79, 240, 0.5);
+}
+
+.hero p {
+	font-size: 1.2rem;
+	color: var(--text-secondary);
+	max-width: 700px;
+	animation: fadeInUp 1s ease 0.3s both;
+	position: relative;
+	z-index: 1;
+}
+
+.scroll-indicator {
+	position: absolute;
+	bottom: 2rem;
+	animation: bounce 2s infinite;
+}
+
+.scroll-indicator::before {
+	content: "▼";
+	font-size: 2rem;
+	color: var(--text-highlight);
+}
+
+@keyframes fadeInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}

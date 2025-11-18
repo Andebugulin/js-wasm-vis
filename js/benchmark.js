@@ -8,12 +8,14 @@ export class Benchmark {
 		this.ui = ui;
 		this.testResults = {};
 		this.wasmModule = null; // REVIEW: Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
+		this.wasmModuleBlur = null;
+		this.wasmModuleBatch = null;
 	}
 
 	/**
 	 * Run complete comparison
 	 */
-	async runComparison(testType, imageData, runs) {
+	async runComparison(testType, imageData, runs, colorCount = 256) {
 		const jsMetricsArray = [];
 		const wasmMetricsArray = [];
 
@@ -28,7 +30,7 @@ export class Benchmark {
 				imageData.width,
 				imageData.height
 			);
-			const metrics = await this.measurePerformance(testType, "js", imageCopy, i === 0);
+			const metrics = await this.measurePerformance(testType, "js", imageCopy, i === 0, colorCount);
 			jsMetricsArray.push(metrics);
 
 			metrics.processedImageData = null;
@@ -122,10 +124,20 @@ export class Benchmark {
 		this.ui.displayResult(testType, side, metrics.processedImageData);
 		await this.delay(CONFIG.TIMING.MIN_VISUAL_DELAY);
 	}
-	async measurePerformance(testType, processorType, imageData, isFirstRun = false) {
-		// Execute the actual test
+	async measurePerformance(
+		testType,
+		processorType,
+		imageData,
+		isFirstRun = false,
+		colorCount = 256
+	) {
 		const startTime = performance.now();
-		const processedImageData = await this.executeTest(testType, processorType, imageData);
+		const processedImageData = await this.executeTest(
+			testType,
+			processorType,
+			imageData,
+			colorCount
+		);
 		const endTime = performance.now();
 
 		// Calculate execution time
@@ -152,31 +164,43 @@ export class Benchmark {
 	/**
 	 * Execute the actual image processing test
 	 */
-	async executeTest(testType, processorType, imageData) {
+	async executeTest(testType, processorType, imageData, colorCount = 256) {
 		if (testType === "invert") {
 			if (processorType === "js") {
 				const module = await import("./js-processor.js");
 				return module.JSProcessor.invertColors(imageData);
 			} else {
-				// Load and initialize WASM (cached after first load)
 				if (!this.wasmModule) {
-					try {
-						this.wasmModule = await import("../wasm/test1/wasm-build-test1/wasm_src_test1.js");
-						await this.wasmModule.default();
-					} catch (error) {
-						console.error("WASM initialization failed:", error);
-						throw new Error("WebAssembly module failed to load. Check console for details.");
-					}
+					this.wasmModule = await import("../wasm/test1/wasm-build-test1/wasm_src_test1.js");
+					await this.wasmModule.default();
 				}
+				return this.wasmModule.invert_colors(imageData);
+			}
+		}
 
-				// Measure data transfer time
-				const transferStart = performance.now();
-				const result = this.wasmModule.invert_colors(imageData);
-				const transferEnd = performance.now();
+		if (testType === "blur") {
+			if (processorType === "js") {
+				const module = await import("./js-processor-blur.js");
+				return module.KMeansQuantizer.quantize(imageData, colorCount);
+			} else {
+				if (!this.wasmModuleBlur) {
+					this.wasmModuleBlur = await import("../wasm/test2/wasm-build-test2/wasm_src_test2.js");
+					await this.wasmModuleBlur.default();
+				}
+				return this.wasmModuleBlur.quantize(imageData, colorCount);
+			}
+		}
 
-				// Attach transfer time to result
-				result._transferTime = transferEnd - transferStart;
-				return result;
+		if (testType === "batch") {
+			if (processorType === "js") {
+				const module = await import("./js-processor-edge.js");
+				return module.EdgeDetector.detectEdges(imageData);
+			} else {
+				if (!this.wasmModuleBatch) {
+					this.wasmModuleBatch = await import("../wasm/test3/wasm-build-test3/wasm_src_test3.js");
+					await this.wasmModuleBatch.default();
+				}
+				return this.wasmModuleBatch.edge_detection(imageData);
 			}
 		}
 

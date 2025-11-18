@@ -1,0 +1,24 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--bg-dark: #0f0f23;
+	--bg-card: #1a1a2e;
+	--accent-js: #f7df1e;
+	--accent-wasm: #654ff0;
+	--text-primary: #cccccc;
+	--text-secondary: #999999;
+	--text-highlight: #00ff00;
+	--border-color: #333344;
+}
+
+body {
+	font-family: "Courier New", monospace;
+	background-color: var(--bg-dark);
+	color: var(--text-primary);
+	line-height: 1.6;
+	overflow-x: hidden;
+}

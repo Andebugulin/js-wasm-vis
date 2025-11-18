@@ -1,0 +1,33 @@
+/* Speedup Summary */
+.speedup-summary {
+	display: none;
+	justify-content: center;
+	margin: 2rem 0;
+	animation: fadeIn 0.5s ease;
+}
+
+.speedup-summary.active {
+	display: flex;
+}
+
+.summary-card {
+	background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(35, 35, 55, 0.6) 100%);
+	border: 2px solid rgba(0, 255, 0, 0.2);
+	border-radius: 12px;
+	padding: 1.5rem 3rem;
+	text-align: center;
+	box-shadow: 0 4px 20px rgba(0, 255, 0, 0.1);
+}
+
+.summary-winner {
+	font-size: 1.3rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	letter-spacing: 1px;
+}
+
+.summary-speedup {
+	font-size: 2rem;
+	font-weight: 300;
+	color: var(--text-highlight);
+}

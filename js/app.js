@@ -51,6 +51,7 @@ class App {
 			tab.addEventListener("click", (e) => this.handleMetricChange(e));
 		});
 	}
+
 	/**
 	 * Handle file upload and validation
 	 */
@@ -62,8 +63,8 @@ class App {
 		const testType = event.target.dataset.test;
 
 		// Validate file
-		if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
-			alert("Please upload a valid image or video file");
+		if (!file.type.startsWith("image/")) {
+			alert("Please upload a valid image file");
 			return;
 		}
 
@@ -75,35 +76,34 @@ class App {
 		}
 
 		try {
-			let dataUrl;
+			const dataUrl = await this.readFileAsDataURL(file);
 
-			// Store file/URL
-			if (file.type.startsWith("video/")) {
-				// For videos, we store the file directly
-				this.currentImages[testType] = {
-					data: file,
-					hash: "video-" + Date.now(),
-					filename: file.name,
-					size: file.size,
-					dimensions: null,
-					isVideo: true,
-				};
-				await this.ui.showVideoPreview(testType, file);
-			} else {
-				// For images, convert to dataURL and generate hash
-				dataUrl = await this.readFileAsDataURL(file);
-				const imageHash = await this.generateImageHash(dataUrl);
+			// Load image to check dimensions
+			const tempImage = await ImageUtils.loadImage(dataUrl);
 
-				this.currentImages[testType] = {
-					data: dataUrl,
-					hash: imageHash,
-					filename: file.name,
-					size: file.size,
-					dimensions: null,
-					isVideo: false,
-				};
-				await this.ui.showImagePreview(testType, dataUrl);
+			// Get max dimension for this test type
+			const maxDimension = CONFIG.RUNS[testType.toUpperCase()].MAX_DIMENSION;
+
+			// Check if image exceeds maximum dimensions
+			if (tempImage.width > maxDimension || tempImage.height > maxDimension) {
+				alert(
+					`Image dimensions too large for this test!\nMaximum allowed: ${maxDimension}x${maxDimension} pixels\nYour image: ${tempImage.width}x${tempImage.height} pixels`
+				);
+				return;
 			}
+
+			const imageHash = await this.generateImageHash(dataUrl);
+
+			this.currentImages[testType] = {
+				data: dataUrl,
+				hash: imageHash,
+				filename: file.name,
+				size: file.size,
+				dimensions: { width: tempImage.width, height: tempImage.height },
+				isVideo: false,
+			};
+
+			await this.ui.showImagePreview(testType, dataUrl);
 
 			// Enable run button
 			this.ui.enableRunButton(testType);
@@ -126,9 +126,6 @@ class App {
 		return hash.toString(16);
 	}
 
-	/**
-	 * Handle test execution
-	 */
 	async handleRunTest(event) {
 		const testType = event.target.dataset.test;
 
@@ -143,10 +140,20 @@ class App {
 			imageData.hash = imageInfo.hash;
 			imageData.filename = imageInfo.filename;
 
-			// TODO: i think i need to write control dimensions better, because the app almost certainly breaks if I upload images above 150000x100000,
-			// the problem currently is that I am thinking that depends on RAM,
-			// when I host website, I will need to check what is the RAM and then put limits accordingly
-			const runs = this.getRunCount(imageData);
+			const runs = this.getRunCount(imageData, testType);
+
+			// Get color count for K-Means test
+			let colorCount = CONFIG.KMEANS.DEFAULT_COLORS;
+			if (testType === "blur") {
+				const colorInput = document.getElementById("color-count-blur");
+				colorCount = Math.max(
+					CONFIG.KMEANS.MIN_COLORS,
+					Math.min(
+						CONFIG.KMEANS.MAX_COLORS,
+						parseInt(colorInput.value) || CONFIG.KMEANS.DEFAULT_COLORS
+					)
+				);
+			}
 
 			console.log(`Running ${runs} iterations for ${testType}`);
 			console.log(
@@ -155,13 +162,17 @@ class App {
 					1_000_000
 				).toFixed(2)} MP)`
 			);
+			if (testType === "blur") {
+				console.log(`Color count: ${colorCount}`);
+			}
 
 			// Run both tests
-			await this.benchmark.runComparison(testType, imageData, runs);
+			await this.benchmark.runComparison(testType, imageData, runs, colorCount);
 
 			// Update chart with default metric and reset tabs
-			this.ui.updateChart(testType, "time");
-			this.ui.setActiveMetricTab(testType, "time");
+			const defaultMetric = testType === "invert" ? "time" : "time";
+			this.ui.updateChart(testType, defaultMetric);
+			this.ui.setActiveMetricTab(testType, defaultMetric);
 
 			// Verify that results are identical
 			const isIdentical = await this.benchmark.verifyResults(testType);
@@ -196,16 +207,17 @@ class App {
 		this.ui.updateChart(testType, metric);
 	}
 
-	getRunCount(imageData) {
+	getRunCount(imageData, testType) {
 		const megapixels = (imageData.width * imageData.height) / 1_000_000;
+		const testConfig = CONFIG.RUNS[testType.toUpperCase()];
 
-		if (megapixels < CONFIG.RUNS.SMALL_IMAGE_THRESHOLD) {
-			return CONFIG.RUNS.SMALL_IMAGE_RUNS;
+		if (megapixels < testConfig.SMALL_IMAGE_THRESHOLD) {
+			return testConfig.SMALL_IMAGE_RUNS;
 		}
-		if (megapixels < CONFIG.RUNS.MEDIUM_IMAGE_THRESHOLD) {
-			return CONFIG.RUNS.MEDIUM_IMAGE_RUNS;
+		if (megapixels < testConfig.MEDIUM_IMAGE_THRESHOLD) {
+			return testConfig.MEDIUM_IMAGE_RUNS;
 		}
-		return CONFIG.RUNS.LARGE_IMAGE_RUNS;
+		return testConfig.LARGE_IMAGE_RUNS;
 	}
 
 	/**

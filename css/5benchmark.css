@@ -1,0 +1,11 @@
+/* Benchmark Section */
+.benchmark-section {
+	padding: 4rem 0;
+}
+
+.benchmark-title {
+	text-align: center;
+	font-size: 2.5rem;
+	margin-bottom: 5rem;
+	color: var(--text-highlight);
+}
