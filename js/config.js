@@ -11,22 +11,20 @@ export const CONFIG = {
 			MEDIUM_IMAGE_RUNS: 10,
 			LARGE_IMAGE_RUNS: 1,
 		},
-
-		// Test 2: K-Means (heavy computation)
-		BLUR: {
-			MAX_DIMENSION: 10000,
-			SMALL_IMAGE_THRESHOLD: 0.3, // MP (e.g., 500x600)
-			MEDIUM_IMAGE_THRESHOLD: 1, // MP (e.g., 1000x1000)
-			SMALL_IMAGE_RUNS: 20,
-			MEDIUM_IMAGE_RUNS: 10,
-			LARGE_IMAGE_RUNS: 3,
-		},
-
-		// Test 3: Edge Detection (heavy computation)
+		// Test 2: Edge Detection (medium computation)
 		BATCH: {
 			MAX_DIMENSION: 10000,
 			SMALL_IMAGE_THRESHOLD: 0.5, // MP
 			MEDIUM_IMAGE_THRESHOLD: 2, // MP
+			SMALL_IMAGE_RUNS: 20,
+			MEDIUM_IMAGE_RUNS: 10,
+			LARGE_IMAGE_RUNS: 3,
+		},
+		// Test 3: K-Means (heavy computation)
+		BLUR: {
+			MAX_DIMENSION: 10000,
+			SMALL_IMAGE_THRESHOLD: 0.3, // MP (e.g., 500x600)
+			MEDIUM_IMAGE_THRESHOLD: 1, // MP (e.g., 1000x1000)
 			SMALL_IMAGE_RUNS: 20,
 			MEDIUM_IMAGE_RUNS: 10,
 			LARGE_IMAGE_RUNS: 3,
@@ -104,7 +102,7 @@ export const METRIC_DISPLAY = {
 			useCoefficient: true,
 		},
 	},
-	blur: {
+	batch: {
 		time: {
 			label: "Execution Time",
 			unit: "ms",
@@ -130,7 +128,7 @@ export const METRIC_DISPLAY = {
 			useCoefficient: true,
 		},
 	},
-	batch: {
+	blur: {
 		time: {
 			label: "Execution Time",
 			unit: "ms",

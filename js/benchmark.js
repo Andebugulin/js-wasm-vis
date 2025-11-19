@@ -1,13 +1,13 @@
 import { CONFIG } from "./config.js";
 
 /**
- * Benchmark coordination with comprehensive performance metrics
+ * Benchmarks
  */
 export class Benchmark {
 	constructor(ui) {
 		this.ui = ui;
 		this.testResults = {};
-		this.wasmModule = null; // REVIEW: Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
+		this.wasmModule = null; // Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
 		this.wasmModuleBlur = null;
 		this.wasmModuleBatch = null;
 	}
@@ -49,7 +49,13 @@ export class Benchmark {
 				imageData.width,
 				imageData.height
 			);
-			const metrics = await this.measurePerformance(testType, "wasm", imageCopy, i === 0);
+			const metrics = await this.measurePerformance(
+				testType,
+				"wasm",
+				imageCopy,
+				i === 0,
+				colorCount
+			);
 			wasmMetricsArray.push(metrics);
 
 			metrics.processedImageData = null;
@@ -61,23 +67,33 @@ export class Benchmark {
 		const jsStats = this.calculateStatistics(jsMetricsArray);
 		const wasmStats = this.calculateStatistics(wasmMetricsArray);
 
-		// REVIEW: I forgot what this part is for, seems unnecessary, because i don't understand why would i do something else here, like checking median
-		// or i don't know why i would executions again, really
+		// We need to do that because we cleared processedImageData earlier to save memory
 		console.log("Regenerating median results for display...");
 		const jsMedianCopy = new ImageData(
 			new Uint8ClampedArray(imageData.data),
 			imageData.width,
 			imageData.height
 		);
-		jsStats.median.processedImageData = await this.executeTest(testType, "js", jsMedianCopy);
+		jsStats.median.processedImageData = await this.executeTest(
+			testType,
+			"js",
+			jsMedianCopy,
+			colorCount
+		);
 
 		const wasmMedianCopy = new ImageData(
 			new Uint8ClampedArray(imageData.data),
 			imageData.width,
 			imageData.height
 		);
-		wasmStats.median.processedImageData = await this.executeTest(testType, "wasm", wasmMedianCopy);
+		wasmStats.median.processedImageData = await this.executeTest(
+			testType,
+			"wasm",
+			wasmMedianCopy,
+			colorCount
+		);
 
+		// REVIEW: why don't just calculate it not from media, but from all runs?
 		// Determine winner based on median execution time
 		const jsFaster = jsStats.median.executionTime < wasmStats.median.executionTime;
 		const timeDiff = Math.abs(jsStats.median.executionTime - wasmStats.median.executionTime);
@@ -116,7 +132,7 @@ export class Benchmark {
 	}
 
 	/**
-	 * Display result with status indicator
+	 * Display result with status indicator, basically ui operation with delay for visual effect, so that the user knows that tests started to run
 	 */
 	async displayResultWithDelay(testType, side, metrics, status) {
 		const statusText = status === "winner" ? "completed 1" : "completed 2";
@@ -181,12 +197,14 @@ export class Benchmark {
 		if (testType === "blur") {
 			if (processorType === "js") {
 				const module = await import("./js-processor-blur.js");
+
 				return module.KMeansQuantizer.quantize(imageData, colorCount);
 			} else {
 				if (!this.wasmModuleBlur) {
 					this.wasmModuleBlur = await import("../wasm/test2/wasm-build-test2/wasm_src_test2.js");
 					await this.wasmModuleBlur.default();
 				}
+
 				return this.wasmModuleBlur.quantize(imageData, colorCount);
 			}
 		}

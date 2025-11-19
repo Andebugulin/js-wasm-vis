@@ -12,7 +12,7 @@ class App {
 		this.benchmark = new Benchmark(this.ui);
 		this.currentImages = {};
 
-		// Expose benchmark globally for UI access
+		// Exposing benchmark globally for UI access
 		window.benchmarkInstance = this.benchmark;
 
 		this.init();
@@ -25,10 +25,10 @@ class App {
 	}
 
 	/**
-	 * Setup all event listeners
+	 * Setup all event listeners: currently for file uploads, test run buttons, metric tabs
 	 */
 	setupEventListeners() {
-		// Upload button listeners - like "Upload Image"
+		// Upload button listeners
 		document.querySelectorAll(".upload-button").forEach((button) => {
 			button.addEventListener("click", (e) => {
 				const testType = e.target.dataset.test;
@@ -41,7 +41,7 @@ class App {
 			input.addEventListener("change", (e) => this.handleFileUpload(e));
 		});
 
-		// Run test button listeners - like "Run Complete Test"
+		// Run test button listeners
 		document.querySelectorAll(".run-test-button").forEach((button) => {
 			button.addEventListener("click", (e) => this.handleRunTest(e));
 		});
@@ -53,7 +53,7 @@ class App {
 	}
 
 	/**
-	 * Handle file upload and validation
+	 * Handle file upload and validation, used only in tests
 	 */
 	async handleFileUpload(event) {
 		console.log("File upload event:", event);
@@ -68,7 +68,7 @@ class App {
 			return;
 		}
 
-		// Validate file size (max 50MB)
+		// Validate file size (max 50MB) REVIEW:
 		const maxSize = 50 * 1024 * 1024; // 50MB
 		if (file.size > maxSize) {
 			alert("File too large. Please upload an image smaller than 50MB");
@@ -126,6 +126,9 @@ class App {
 		return hash.toString(16);
 	}
 
+	/**
+	 * Handle running the selected test, currently for 3 tests - invert, edge detection, color quantization
+	 */
 	async handleRunTest(event) {
 		const testType = event.target.dataset.test;
 
@@ -191,7 +194,7 @@ class App {
 	}
 
 	/**
-	 * Handle metric tab change
+	 * Handle metric tab change, right now four metrics: execution time, memory usage, UI freeze, processed image size REVIEW: maybe will add image dimensions metric
 	 */
 	handleMetricChange(event) {
 		const tab = event.target;
@@ -207,6 +210,9 @@ class App {
 		this.ui.updateChart(testType, metric);
 	}
 
+	/**
+	 * Determine number of runs based on image size and test type, this is to balance freezing, due to heavier tests needing fewer runs
+	 */
 	getRunCount(imageData, testType) {
 		const megapixels = (imageData.width * imageData.height) / 1_000_000;
 		const testConfig = CONFIG.RUNS[testType.toUpperCase()];
@@ -221,7 +227,7 @@ class App {
 	}
 
 	/**
-	 * Read file as Data URL
+	 * Read file as Data URL, need that because initially we get File object from input and we want to convert to Data URL for image loading
 	 */
 	readFileAsDataURL(file) {
 		return new Promise((resolve, reject) => {

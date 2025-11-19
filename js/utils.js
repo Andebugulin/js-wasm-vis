@@ -9,8 +9,6 @@ export class ImageUtils {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 
-			// REVIEW: i need to check what onload does, because it seems like we are getting error here, even tho the image gest load.
-			// it is weird too, because it is called, when i upload file, and when i run test
 			img.onload = () => {
 				const canvas = document.createElement("canvas");
 				canvas.width = img.width;
