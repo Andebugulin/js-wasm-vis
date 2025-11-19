@@ -65,6 +65,25 @@ export const CONFIG = {
 		MIN_COLORS: 2,
 		MAX_COLORS: 256,
 	},
+
+	// Image size performance tracking
+	IMAGE_SIZE_TRACKING: {
+		ENABLED: true,
+		MAX_SIZE_ENTRIES: 100, // Store more entries for size analysis
+		SIZE_BUCKETS: [
+			{ min: 0, max: 0.5, label: "< 0.5 MP" },
+			{ min: 0.5, max: 2, label: "0.5-2 MP" },
+			{ min: 2, max: 5, label: "2-5 MP" },
+			{ min: 5, max: 10, label: "5-10 MP" },
+			{ min: 10, max: 50, label: "10-50 MP" },
+			{ min: 50, max: Infinity, label: "> 50 MP" },
+		],
+	},
+	// Image format performance tracking
+	IMAGE_FORMAT_TRACKING: {
+		ENABLED: true,
+		SUPPORTED_FORMATS: ["image/jpeg", "image/png", "image/webp", "image/gif", "image/bmp"],
+	},
 };
 
 // Metric display configuration - per test type
@@ -100,6 +119,14 @@ export const METRIC_DISPLAY = {
 			description: "Coefficient of variation (lower = more consistent)",
 			accessor: (metrics) => metrics.executionTime,
 			useCoefficient: true,
+		},
+		imageSize: {
+			label: "Image Size Impact",
+			unit: "x speedup",
+			decimals: 2,
+			description: "WebAssembly advantage by image size (negative = JS faster)",
+			accessor: (metrics) => metrics.executionTime,
+			useImageSizeData: true,
 		},
 	},
 	batch: {

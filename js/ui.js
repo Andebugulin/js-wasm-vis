@@ -188,6 +188,12 @@ export class UI {
 			return;
 		}
 
+		// Special handling for image size metric
+		if (metric === "imageSize") {
+			this.showImageSizeChart(testType, chartContainer);
+			return;
+		}
+
 		chartContainer.innerHTML = `
         <div class="chart-header">
             <div class="chart-title">${metricConfig.label} Comparison</div>
@@ -233,6 +239,325 @@ export class UI {
 				tab.classList.remove("active");
 			}
 		});
+	}
+
+	/**
+	 * Show image size impact chart
+	 */
+	showImageSizeChart(testType, chartContainer) {
+		const benchmark = window.benchmarkInstance;
+		if (!benchmark || !benchmark.imageSizePerformance) {
+			chartContainer.innerHTML = '<div class="empty-state">No image size data available</div>';
+			return;
+		}
+
+		const sizeData = benchmark.imageSizePerformance[testType] || [];
+
+		if (sizeData.length === 0) {
+			chartContainer.innerHTML = `
+            <div class="empty-state">
+                <p>Run tests with different image sizes to see how WASM advantage scales</p>
+                <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.7;">
+                    Try images ranging from 0.5 MP to 50+ MP
+                </p>
+            </div>
+        `;
+			return;
+		}
+
+		// Sort by megapixels
+		const sorted = [...sizeData].sort((a, b) => a.megapixels - b.megapixels);
+
+		// Create scatter plot
+		const width = 900;
+		const height = 400;
+		const marginLeft = 100;
+		const marginRight = 80;
+		const marginTop = 40;
+		const marginBottom = 60;
+		const chartWidth = width - marginLeft - marginRight;
+		const chartHeight = height - marginTop - marginBottom;
+
+		// Scales
+		const maxMP = Math.max(...sorted.map((d) => d.megapixels));
+		const minMP = Math.min(...sorted.map((d) => d.megapixels));
+		const allSpeedups = sorted.map((d) => d.speedup);
+		const maxSpeedup = Math.max(...allSpeedups, 1.5); // At least show 1.5x
+		const minSpeedup = Math.min(...allSpeedups, 0.5); // At least show 0.5x
+
+		const scaleX = (mp) => marginLeft + ((mp - minMP) / (maxMP - minMP || 1)) * chartWidth;
+		const scaleY = (speedup) =>
+			marginTop + chartHeight - ((speedup - minSpeedup) / (maxSpeedup - minSpeedup)) * chartHeight;
+
+		// Generate Y-axis ticks (always include 1.0 = parity)
+		const yTicks = [];
+		const numTicks = 7;
+		for (let i = 0; i <= numTicks; i++) {
+			const value = minSpeedup + ((maxSpeedup - minSpeedup) * i) / numTicks;
+			yTicks.push({ value, y: scaleY(value), isParity: Math.abs(value - 1.0) < 0.05 });
+		}
+
+		// Generate X-axis ticks
+		const xTicks = [];
+		const numXTicks = 5;
+		for (let i = 0; i <= numXTicks; i++) {
+			const value = minMP + ((maxMP - minMP) * i) / numXTicks;
+			xTicks.push({ value, x: scaleX(value) });
+		}
+
+		// Parity line position
+		const parityY = scaleY(1.0);
+
+		chartContainer.innerHTML = `
+        <div class="chart-header">
+            <div class="chart-title">WebAssembly Performance Scaling by Image Size</div>
+            <div class="chart-subtitle">How WASM advantage changes with image dimensions (${
+							sizeData.length
+						} data points)</div>
+            <button class="clear-stats-btn" data-test="${testType}" data-clear-type="imageSize">Clear Size Data</button>
+        </div>
+        <div class="chart-canvas-wrapper">
+            <svg class="line-chart" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid lines -->
+                <g class="grid">
+                    ${yTicks
+											.map(
+												(tick) => `
+                        <line x1="${marginLeft}" y1="${tick.y}" 
+                            x2="${width - marginRight}" y2="${tick.y}" 
+                            stroke="${
+															tick.isParity ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.05)"
+														}" 
+                            stroke-width="${tick.isParity ? "2" : "1"}"
+                            stroke-dasharray="${tick.isParity ? "5,5" : "2,4"}"/>
+                    `
+											)
+											.join("")}
+                </g>
+                
+                <!-- Parity line label -->
+                <text x="${width - marginRight + 10}" y="${parityY + 5}" 
+                    fill="rgba(255,255,255,0.5)" font-size="11" font-family="Courier New">
+                    Equal
+                </text>
+                
+                <!-- Axes -->
+                <line x1="${marginLeft}" y1="${marginTop}" 
+                    x2="${marginLeft}" y2="${height - marginBottom}" 
+                    stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                <line x1="${marginLeft}" y1="${height - marginBottom}" 
+                    x2="${width - marginRight}" y2="${height - marginBottom}" 
+                    stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                
+                <!-- Y-axis labels -->
+                <g class="y-labels">
+                    ${yTicks
+											.map(
+												(tick) => `
+                        <text x="${marginLeft - 10}" y="${tick.y + 5}" 
+                            text-anchor="end" 
+                            fill="${
+															tick.isParity ? "var(--text-highlight)" : "var(--text-secondary)"
+														}" 
+                            font-size="12" 
+                            font-family="Courier New"
+                            font-weight="${tick.isParity ? "600" : "400"}">
+                            ${tick.value.toFixed(2)}x
+                        </text>
+                    `
+											)
+											.join("")}
+                </g>
+                
+                <!-- X-axis labels -->
+                <g class="x-labels">
+                    ${xTicks
+											.map(
+												(tick) => `
+                        <text x="${tick.x}" y="${height - marginBottom + 25}" 
+                            text-anchor="middle" fill="var(--text-secondary)" 
+                            font-size="11" font-family="Courier New">
+                            ${tick.value.toFixed(1)} MP
+                        </text>
+                    `
+											)
+											.join("")}
+                </g>
+                
+                <!-- Data points -->
+                ${sorted
+									.map((point, i) => {
+										const cx = scaleX(point.megapixels);
+										const cy = scaleY(point.speedup);
+										const color = point.speedup > 1 ? "var(--accent-wasm)" : "var(--accent-js)";
+										const winner = point.speedup > 1 ? "WASM" : "JS";
+
+										return `
+                        <g class="data-point" data-index="${i}">
+                            <circle cx="${cx}" cy="${cy}" r="6" 
+                                fill="${color}" 
+                                stroke="var(--bg-dark)" 
+                                stroke-width="2"
+                                opacity="0.8"/>
+                            <circle cx="${cx}" cy="${cy}" r="10" 
+                                fill="transparent" 
+                                class="hover-circle"/>
+                            
+                            <!-- Tooltip (hidden by default) -->
+                            <g class="data-point-labels" style="opacity: 0; pointer-events: none;">
+                                <rect x="${cx + 12}" y="${cy - 35}" 
+                                    width="140" height="60" 
+                                    rx="4" 
+                                    fill="var(--bg-dark)" 
+                                    stroke="${color}" 
+                                    stroke-width="1.5" 
+                                    opacity="0.95"/>
+                                <text x="${cx + 18}" y="${cy - 20}" 
+                                    fill="${color}" 
+                                    font-size="11" 
+                                    font-family="Courier New" 
+                                    font-weight="600">
+                                    ${point.megapixels.toFixed(2)} MP
+                                </text>
+                                <text x="${cx + 18}" y="${cy - 5}" 
+                                    fill="var(--text-primary)" 
+                                    font-size="10" 
+                                    font-family="Courier New">
+                                    ${winner} faster: ${Math.abs(point.speedup).toFixed(2)}x
+                                </text>
+                                <text x="${cx + 18}" y="${cy + 10}" 
+                                    fill="var(--text-secondary)" 
+                                    font-size="9" 
+                                    font-family="Courier New">
+                                    JS: ${point.jsTime.toFixed(1)}ms
+                                </text>
+                                <text x="${cx + 18}" y="${cy + 23}" 
+                                    fill="var(--text-secondary)" 
+                                    font-size="9" 
+                                    font-family="Courier New">
+                                    WASM: ${point.wasmTime.toFixed(1)}ms
+                                </text>
+                            </g>
+                        </g>
+                    `;
+									})
+									.join("")}
+                
+                <!-- Axis labels -->
+                <text x="${width / 2}" y="${height - 10}" 
+                    text-anchor="middle" 
+                    fill="var(--text-highlight)" 
+                    font-size="13" 
+                    font-family="Courier New" 
+                    letter-spacing="1">
+                    Image Size (Megapixels)
+                </text>
+                <text x="25" y="${height / 2}" 
+                    text-anchor="middle" 
+                    transform="rotate(-90 25 ${height / 2})" 
+                    fill="var(--text-highlight)" 
+                    font-size="13" 
+                    font-family="Courier New" 
+                    letter-spacing="1">
+                    WASM Speedup Factor
+                </text>
+            </svg>
+        </div>
+        
+        <div class="chart-legend">
+            <div class="legend-item">
+                <div class="legend-line wasm"></div>
+                <span>WASM Faster (> 1.0x)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line js"></div>
+                <span>JS Faster (< 1.0x)</span>
+            </div>
+        </div>
+        
+        ${this.createImageSizeInsights(sorted, testType)}
+    `;
+
+		// Add hover interactions
+		chartContainer.querySelectorAll(".data-point").forEach((point) => {
+			point.addEventListener("mouseenter", () => {
+				const labels = point.querySelector(".data-point-labels");
+				if (labels) labels.style.opacity = "1";
+			});
+			point.addEventListener("mouseleave", () => {
+				const labels = point.querySelector(".data-point-labels");
+				if (labels) labels.style.opacity = "0";
+			});
+		});
+
+		// Clear button
+		const clearBtn = chartContainer.querySelector(".clear-stats-btn");
+		if (clearBtn) {
+			clearBtn.addEventListener("click", () => {
+				if (confirm("Clear all image size performance data?")) {
+					benchmark.imageSizePerformance[testType] = [];
+					benchmark.saveImageSizeData();
+					this.updateChart(testType, "imageSize");
+				}
+			});
+		}
+	}
+
+	/**
+	 * Generate insights from image size data
+	 */
+	createImageSizeInsights(sortedData, testType) {
+		if (sortedData.length < 3) {
+			return `
+            <div class="metric-explanation">
+                <div class="explanation-header">💡 Understanding Image Size Impact</div>
+                <div class="explanation-content">
+                    <p><strong>Run tests with various image sizes to see trends</strong></p>
+                    <p><em>Tip:</em> Test with small (< 1 MP), medium (1-5 MP), and large (> 10 MP) images</p>
+                </div>
+            </div>
+        `;
+		}
+
+		// Find optimal size range
+		const wasmFasterPoints = sortedData.filter((d) => d.speedup > 1);
+		const jsFasterPoints = sortedData.filter((d) => d.speedup < 1);
+
+		let insight = "";
+		if (wasmFasterPoints.length > jsFasterPoints.length) {
+			const avgWasmAdvantage =
+				wasmFasterPoints.reduce((sum, d) => sum + d.speedup, 0) / wasmFasterPoints.length;
+			const bestPoint = wasmFasterPoints.reduce((best, d) => (d.speedup > best.speedup ? d : best));
+
+			insight = `
+            <p><strong>WebAssembly shows advantage in ${wasmFasterPoints.length} of ${
+				sortedData.length
+			} test sizes</strong></p>
+            <p>Average speedup: <span style="color: var(--accent-wasm)">${avgWasmAdvantage.toFixed(
+							2
+						)}x faster</span></p>
+            <p>Best performance: <span style="color: var(--accent-wasm)">${bestPoint.speedup.toFixed(
+							2
+						)}x faster</span> at ${bestPoint.megapixels.toFixed(1)} MP</p>
+            <p><em>Recommendation:</em> Use WASM for images larger than ${Math.min(
+							...wasmFasterPoints.map((d) => d.megapixels)
+						).toFixed(1)} MP for best results</p>
+        `;
+		} else if (jsFasterPoints.length > 0) {
+			insight = `
+            <p><strong>JavaScript competitive in ${jsFasterPoints.length} of ${sortedData.length} test sizes</strong></p>
+            <p><em>Note:</em> For this operation, WASM overhead may outweigh benefits at smaller image sizes</p>
+        `;
+		}
+
+		return `
+        <div class="metric-explanation">
+            <div class="explanation-header">📊 Image Size Analysis</div>
+            <div class="explanation-content">
+                ${insight}
+            </div>
+        </div>
+    `;
 	}
 
 	/**

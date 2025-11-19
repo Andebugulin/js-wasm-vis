@@ -10,6 +10,7 @@ export class Benchmark {
 		this.wasmModule = null; // Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
 		this.wasmModuleBlur = null;
 		this.wasmModuleBatch = null;
+		this.imageSizePerformance = this.loadImageSizeData();
 	}
 
 	/**
@@ -93,6 +94,15 @@ export class Benchmark {
 			colorCount
 		);
 
+		// Record image size performance
+		const megapixels = (imageData.width * imageData.height) / 1_000_000;
+		this.recordImageSizePerformance(
+			testType,
+			megapixels,
+			jsStats.median.executionTime,
+			wasmStats.median.executionTime
+		);
+
 		// REVIEW: why don't just calculate it not from media, but from all runs?
 		// Determine winner based on median execution time
 		const jsFaster = jsStats.median.executionTime < wasmStats.median.executionTime;
@@ -129,6 +139,84 @@ export class Benchmark {
 
 		// Display speedup summary
 		this.ui.showSpeedupSummary(testType, jsFaster ? "js" : "wasm", speedup);
+	}
+
+	/**
+	 * Load image size performance data from localStorage
+	 */
+	loadImageSizeData() {
+		const stored = localStorage.getItem("imageSizePerformance");
+		if (stored) {
+			try {
+				return JSON.parse(stored);
+			} catch (e) {
+				console.warn("Failed to load image size data:", e);
+			}
+		}
+		return {
+			invert: [],
+			batch: [],
+			blur: [],
+		};
+	}
+
+	/**
+	 * Save image size performance data to localStorage
+	 */
+	saveImageSizeData() {
+		try {
+			// Keep only last 100 entries per test
+			Object.keys(this.imageSizePerformance).forEach((testType) => {
+				if (
+					this.imageSizePerformance[testType].length > CONFIG.IMAGE_SIZE_TRACKING.MAX_SIZE_ENTRIES
+				) {
+					this.imageSizePerformance[testType] = this.imageSizePerformance[testType].slice(
+						-CONFIG.IMAGE_SIZE_TRACKING.MAX_SIZE_ENTRIES
+					);
+				}
+			});
+			localStorage.setItem("imageSizePerformance", JSON.stringify(this.imageSizePerformance));
+		} catch (e) {
+			console.warn("Failed to save image size data:", e);
+		}
+	}
+
+	/**
+	 * Record size-based performance
+	 */
+	recordImageSizePerformance(testType, megapixels, jsMedianTime, wasmMedianTime) {
+		if (!CONFIG.IMAGE_SIZE_TRACKING.ENABLED) return;
+
+		const speedup = jsMedianTime / wasmMedianTime; // > 1 = WASM faster, < 1 = JS faster
+
+		if (!this.imageSizePerformance[testType]) {
+			this.imageSizePerformance[testType] = [];
+		}
+
+		// Find if we already have data for this size (within 5% tolerance)
+		const existingIndex = this.imageSizePerformance[testType].findIndex(
+			(entry) => Math.abs(entry.megapixels - megapixels) / megapixels < 0.05
+		);
+
+		const newEntry = {
+			megapixels,
+			jsTime: jsMedianTime,
+			wasmTime: wasmMedianTime,
+			speedup,
+			timestamp: Date.now(),
+		};
+
+		if (existingIndex >= 0) {
+			// Update if new result is better (more reliable with multiple runs)
+			const existing = this.imageSizePerformance[testType][existingIndex];
+			if (Math.abs(speedup) > Math.abs(existing.speedup)) {
+				this.imageSizePerformance[testType][existingIndex] = newEntry;
+			}
+		} else {
+			this.imageSizePerformance[testType].push(newEntry);
+		}
+
+		this.saveImageSizeData();
 	}
 
 	/**
