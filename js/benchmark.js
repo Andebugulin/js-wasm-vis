@@ -11,6 +11,7 @@ export class Benchmark {
 		this.wasmModuleBlur = null;
 		this.wasmModuleBatch = null;
 		this.imageSizePerformance = this.loadImageSizeData();
+		this.imageFormatPerformance = this.loadFormatData();
 	}
 
 	/**
@@ -102,6 +103,17 @@ export class Benchmark {
 			jsStats.median.executionTime,
 			wasmStats.median.executionTime
 		);
+
+		// Record format performance (if format info available)
+		if (imageData.formatInfo) {
+			this.recordFormatPerformance(
+				testType,
+				imageData.formatInfo,
+				megapixels,
+				jsStats.median.executionTime,
+				wasmStats.median.executionTime
+			);
+		}
 
 		// REVIEW: why don't just calculate it not from media, but from all runs?
 		// Determine winner based on median execution time
@@ -262,6 +274,7 @@ export class Benchmark {
 				height: imageData.height,
 				megapixels,
 			},
+			formatInfo: imageData.formatInfo,
 		};
 	}
 

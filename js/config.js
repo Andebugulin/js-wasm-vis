@@ -154,6 +154,14 @@ export const METRIC_DISPLAY = {
 			accessor: (metrics) => metrics.executionTime,
 			useCoefficient: true,
 		},
+		imageSize: {
+			label: "Image Size Impact",
+			unit: "x speedup",
+			decimals: 2,
+			description: "WebAssembly advantage by image size (negative = JS faster)",
+			accessor: (metrics) => metrics.executionTime,
+			useImageSizeData: true,
+		},
 	},
 	blur: {
 		time: {
@@ -179,6 +187,14 @@ export const METRIC_DISPLAY = {
 			description: "Coefficient of variation (lower = more consistent)",
 			accessor: (metrics) => metrics.executionTime,
 			useCoefficient: true,
+		},
+		imageSize: {
+			label: "Image Size Impact",
+			unit: "x speedup",
+			decimals: 2,
+			description: "WebAssembly advantage by image size (negative = JS faster)",
+			accessor: (metrics) => metrics.executionTime,
+			useImageSizeData: true,
 		},
 	},
 };

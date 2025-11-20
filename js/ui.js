@@ -193,6 +193,10 @@ export class UI {
 			this.showImageSizeChart(testType, chartContainer);
 			return;
 		}
+		if (metric === "imageFormat") {
+			this.showImageFormatChart(testType, chartContainer);
+			return;
+		}
 
 		chartContainer.innerHTML = `
         <div class="chart-header">
