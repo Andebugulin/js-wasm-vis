@@ -79,11 +79,6 @@ export const CONFIG = {
 			{ min: 50, max: Infinity, label: "> 50 MP" },
 		],
 	},
-	// Image format performance tracking
-	IMAGE_FORMAT_TRACKING: {
-		ENABLED: true,
-		SUPPORTED_FORMATS: ["image/jpeg", "image/png", "image/webp", "image/gif", "image/bmp"],
-	},
 };
 
 // Metric display configuration - per test type

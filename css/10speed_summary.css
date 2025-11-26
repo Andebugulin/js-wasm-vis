@@ -17,6 +17,7 @@
 	padding: 1.5rem 3rem;
 	text-align: center;
 	box-shadow: 0 4px 20px rgba(0, 255, 0, 0.1);
+	background: rgba(2, 13, 77, 0.4);
 }
 
 .summary-winner {

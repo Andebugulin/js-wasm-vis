@@ -5,13 +5,13 @@
 }
 
 :root {
-	--bg-dark: #0f0f23;
-	--bg-card: #1a1a2e;
+	--bg-dark: #03071c;
+	--bg-card: #070916;
 	--accent-js: #f7df1e;
 	--accent-wasm: #654ff0;
 	--text-primary: #cccccc;
 	--text-secondary: #999999;
-	--text-highlight: #00ff00;
+	--text-highlight: #b9bed3;
 	--border-color: #333344;
 }
 

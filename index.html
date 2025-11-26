@@ -17,6 +17,7 @@
 		<link rel="stylesheet" href="css/10speed_summary.css" />
 		<link rel="stylesheet" href="css/11results.css" />
 		<link rel="stylesheet" href="css/12footer.css" />
+		<link rel="stylesheet" href="css/13settings.css" />
 		<link rel="stylesheet" href="css/styles.css" />
 		<script src="css/sticky_headers.js" type="module"></script>
 	</head>
@@ -36,7 +37,7 @@
 			<!-- Info Section -->
 			<section class="info-section">
 				<div class="info-box">
-					<h2>// About This Research</h2>
+					<h2>About This Research</h2>
 					<p>
 						What if WebAssembly is not truly faster than JS everywhere? This project tries to
 						understand whereS and howS.
@@ -44,7 +45,7 @@
 				</div>
 
 				<div class="info-box">
-					<h2>// Why Image Processing?</h2>
+					<h2>Why Image Processing?</h2>
 					<p>
 						Why not? Image processing is a commonly used in most popular applications today and it
 						requires a lot of CPU power, which makes it a suitable choice for optimizing with WASM.
@@ -52,11 +53,11 @@
 				</div>
 
 				<div class="info-box">
-					<h2>// Measured Metrics</h2>
+					<h2>Measured Metrics</h2>
 					<ul class="metrics-list">
 						<li>
 							<strong>Execution Time:</strong> Total processing duration in
-							<code style="color: greenyellow">milliseconds</code>
+							<code style="color: rgb(255, 220, 47)">milliseconds</code>
 						</li>
 						<li>
 							<strong>Cold start:</strong> Time taken for the first run, including any
@@ -64,7 +65,7 @@
 						</li>
 						<li>
 							<strong>Pixel Rate:</strong> Number of pixels processed per second (<code
-								style="color: greenyellow"
+								style="color: rgb(255, 220, 47)"
 								>MP/s</code
 							>)
 						</li>
@@ -77,7 +78,7 @@
 
 			<!-- Benchmark Section -->
 			<section class="benchmark-section">
-				<h2 class="benchmark-title">→ Performance Benchmarks</h2>
+				<h2 class="benchmark-title">Performance Benchmarks</h2>
 
 				<!-- Test 1: Color Inversion -->
 				<div class="test-item" data-test="invert">
@@ -93,6 +94,7 @@
 					<div class="hidden-sticky-header">
 						<span class="test-number-badge">Test 01</span>
 						<span class="test-title-text">Color Inversion</span>
+						<button class="sticky-settings-btn" data-test="invert">Settings</button>
 					</div>
 
 					<div class="test-content">
@@ -201,6 +203,7 @@
 					<div class="hidden-sticky-header">
 						<span class="test-number-badge">Test 02</span>
 						<span class="test-title-text">Edge detection</span>
+						<button class="sticky-settings-btn" data-test="batch">Settings</button>
 					</div>
 					<div class="test-content">
 						<div class="gradient-divider"></div>
@@ -304,6 +307,7 @@
 					<div class="hidden-sticky-header">
 						<span class="test-number-badge">Test 03</span>
 						<span class="test-title-text">Color Quantization (K-Means)</span>
+						<button class="sticky-settings-btn" data-test="blur">Settings</button>
 					</div>
 
 					<div class="test-content">
@@ -413,7 +417,7 @@
 			<!-- Methodology Section -->
 			<section class="info-section">
 				<div class="info-box">
-					<h2>// Methodology</h2>
+					<h2>Methodology</h2>
 					<p>
 						Each test runs multiple iterations (1-30 depending on image size) to ensure statistical
 						reliability. Results show the median value to reduce the impact of outliers caused by
@@ -421,6 +425,74 @@
 					</p>
 				</div>
 			</section>
+		</div>
+		<div class="settings-overlay" id="settingsOverlay">
+			<div class="settings-content">
+				<!-- Current Image Info -->
+				<div class="current-image-info" id="currentImageInfo" style="display: none">
+					<h3>Current Image</h3>
+					<div class="image-stats">
+						<div class="stat-item">
+							<span class="stat-label">Dimensions:</span>
+							<span class="stat-value" id="currentImageDimensions">-</span>
+						</div>
+						<div class="stat-item">
+							<span class="stat-label">Megapixels:</span>
+							<span class="stat-value" id="currentImageMP">-</span>
+						</div>
+						<div class="stat-item">
+							<span class="stat-label">Category:</span>
+							<span class="stat-value" id="currentImageCategory">-</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Test Settings -->
+				<div class="setting-group"">
+				<h3 id="settingsTestTitle">Test Settings</h3>
+
+				<div class="setting-item">
+					<label>Max Dimension:</label>
+					<input type="number" id="setting-max-dimension" min="1000" max="20000" step="1000" />
+					<span class="setting-unit">pixels</span>
+				</div>
+
+				<div class="setting-item">
+					<label>Small Image Threshold:</label>
+					<input type="number" id="setting-small-threshold" min="0.1" max="50" step="0.1" />
+					<span class="setting-unit">MP</span>
+				</div>
+
+				<div class="setting-item">
+					<label>Medium Image Threshold:</label>
+					<input type="number" id="setting-medium-threshold" min="0.1" max="50" step="0.1" />
+					<span class="setting-unit">MP</span>
+				</div>
+
+				<div class="setting-item">
+					<label>Small Image Runs:</label>
+					<input type="number" id="setting-small-runs" min="1" max="50" step="1" />
+					<span class="setting-unit">iterations</span>
+				</div>
+
+				<div class="setting-item">
+					<label>Medium Image Runs:</label>
+					<input type="number" id="setting-medium-runs" min="1" max="30" step="1" />
+					<span class="setting-unit">iterations</span>
+				</div>
+
+				<div class="setting-item">
+					<label>Large Image Runs:</label>
+					<input type="number" id="setting-large-runs" min="1" max="10" step="1" />
+					<span class="setting-unit">iterations</span>
+				</div>
+			</div>
+
+			<div class="settings-actions">
+				<button class="settings-save" id="settingsSave">Save Settings</button>
+				<button class="settings-reset" id="settingsReset">Reset to Defaults</button>
+			</div>
+		</div>
 		</div>
 
 		<footer>

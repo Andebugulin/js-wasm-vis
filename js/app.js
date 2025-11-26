@@ -2,6 +2,7 @@ import { UI } from "./ui.js";
 import { Benchmark } from "./benchmark.js";
 import { ImageUtils } from "./utils.js";
 import { CONFIG } from "./config.js";
+import { SettingsManager } from "./settings.js";
 
 /**
  * Main Application Controller
@@ -11,7 +12,7 @@ class App {
 		this.ui = new UI();
 		this.benchmark = new Benchmark(this.ui);
 		this.currentImages = {};
-
+		this.settings = new SettingsManager(this);
 		// Exposing benchmark globally for UI access
 		window.benchmarkInstance = this.benchmark;
 

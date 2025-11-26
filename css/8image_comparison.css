@@ -69,12 +69,20 @@
 	z-index: 10;
 }
 
-.image-container:first-child .image-label {
+/* Original image (neutral color) */
+.image-container[data-side="original"] .image-label {
+	color: var(--text-highlight);
+	border: 1px solid var(--text-secondary);
+}
+
+/* JavaScript side */
+.image-container[data-side="js"] .image-label {
 	color: var(--accent-js);
 	border: 1px solid var(--accent-js);
 }
 
-.image-container:last-child .image-label {
+/* WebAssembly side */
+.image-container[data-side="wasm"] .image-label {
 	color: var(--accent-wasm);
 	background: rgba(15, 15, 35, 0.95);
 	border: 1px solid var(--accent-wasm);
@@ -292,7 +300,7 @@
 .dimension-label {
 	font-size: 0.85rem;
 	color: var(--text-highlight);
-	background: rgba(15, 15, 35, 0.9);
+	background: rgba(2, 13, 77, 0.4);
 	padding: 0.3rem 0.6rem;
 	border-radius: 3px;
 	white-space: nowrap;

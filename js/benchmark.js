@@ -11,7 +11,6 @@ export class Benchmark {
 		this.wasmModuleBlur = null;
 		this.wasmModuleBatch = null;
 		this.imageSizePerformance = this.loadImageSizeData();
-		this.imageFormatPerformance = this.loadFormatData();
 	}
 
 	/**

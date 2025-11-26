@@ -91,7 +91,7 @@ export class UI {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const button = testItem.querySelector(".run-test-button");
 		button.disabled = isRunning;
-		button.textContent = isRunning ? "⏳ Running..." : "▶ Run Complete Test";
+		button.textContent = isRunning ? "Running..." : "Run Complete Test";
 	}
 
 	// === Countdown Overlay Controls ===
@@ -200,10 +200,11 @@ export class UI {
 
 		chartContainer.innerHTML = `
         <div class="chart-header">
-            <div class="chart-title">${metricConfig.label} Comparison</div>
-            <div class="chart-subtitle">${metricConfig.description} (${metricConfig.unit})</div>
-            <button class="clear-stats-btn" data-test="${testType}">️\> Clear Stats \<</button>
-        </div>
+  		    <div class="chart-title">${metricConfig.label} Comparison</div>
+ 		    <div class="chart-subtitle">${metricConfig.description} (${metricConfig.unit})</div>
+    		<button class="export-stats-btn" data-test="${testType}">Export Stats</button>
+    		<button class="clear-stats-btn" data-test="${testType}">︎Clear Stats</button>
+		</div>
         <div class="chart-canvas-wrapper">
             ${this.createLineChart(displayResults, metricConfig)}
         </div>
@@ -229,6 +230,140 @@ export class UI {
 				}
 			});
 		}
+
+		// Add export button listener
+		const exportBtn = chartContainer.querySelector(".export-stats-btn");
+		if (exportBtn) {
+			exportBtn.addEventListener("click", () => {
+				this.exportStatistics(testType, displayResults);
+			});
+		}
+	}
+	/**
+	 * Export statistics to CSV from sessionStorage
+	 */
+	exportStatistics(testType, results) {
+		if (!results || results.length === 0) return;
+
+		const testNames = {
+			invert: "Color Inversion",
+			batch: "Edge Detection",
+			blur: "K-Means Quantization",
+		};
+
+		// Conditional headers based on test type
+		const headers = [
+			"Run",
+			"JS Execution Time (ms)",
+			"WASM Execution Time (ms)",
+			"JS Cold Start Overhead (ms)",
+			"WASM Cold Start Overhead (ms)",
+		];
+		if (testType === "invert") {
+			headers.push("JS Pixel Rate (Mpx/s)", "WASM Pixel Rate (Mpx/s)");
+		}
+		headers.push("JS Consistency (CV %)", "WASM Consistency (CV %)", "Speedup");
+
+		// CSV Rows
+		const rows = results.map((result, i) => {
+			// Cold start overhead = first run - median
+			const jsColdStart = result.js.firstRun
+				? (result.js.firstRun.executionTime - result.js.median.executionTime).toFixed(2)
+				: "N/A";
+			const wasmColdStart = result.wasm.firstRun
+				? (result.wasm.firstRun.executionTime - result.wasm.median.executionTime).toFixed(2)
+				: "N/A";
+
+			const jsCV = ((result.js.stdDev / result.js.mean.executionTime) * 100).toFixed(2);
+			const wasmCV = ((result.wasm.stdDev / result.wasm.mean.executionTime) * 100).toFixed(2);
+
+			const speedup = (result.js.median.executionTime / result.wasm.median.executionTime).toFixed(
+				2
+			);
+
+			const row = [
+				i + 1,
+				result.js.median.executionTime.toFixed(2),
+				result.wasm.median.executionTime.toFixed(2),
+				jsColdStart,
+				wasmColdStart,
+			];
+
+			// Only add pixel rate for invert test
+			if (testType === "invert") {
+				row.push(
+					result.js.median.throughput ? result.js.median.throughput.toFixed(2) : "N/A",
+					result.wasm.median.throughput ? result.wasm.median.throughput.toFixed(2) : "N/A"
+				);
+			}
+
+			row.push(jsCV, wasmCV, speedup);
+
+			return row.join(",");
+		});
+
+		const csv = [headers.join(","), ...rows].join("\n");
+
+		// Download
+		const blob = new Blob([csv], { type: "text/csv" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${testType}_results.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
+	 * Export image size performance data to CSV
+	 */
+	exportImageSizeData(testType, sizeData) {
+		if (!sizeData || sizeData.length === 0) return;
+
+		const testNames = {
+			invert: "Color Inversion",
+			batch: "Edge Detection",
+			blur: "K-Means Quantization",
+		};
+
+		// Sort by megapixels
+		const sorted = [...sizeData].sort((a, b) => a.megapixels - b.megapixels);
+
+		// CSV Header
+		const headers = [
+			"Megapixels",
+			"JS Time (ms)",
+			"WASM Time (ms)",
+			"Speedup",
+			"Winner",
+			"Timestamp",
+		];
+
+		// CSV Rows
+		const rows = sorted.map((point) => {
+			const winner = point.speedup > 1 ? "WASM" : "JS";
+			const date = new Date(point.timestamp).toLocaleString();
+
+			return [
+				point.megapixels.toFixed(2),
+				point.jsTime.toFixed(2),
+				point.wasmTime.toFixed(2),
+				Math.abs(point.speedup).toFixed(2),
+				winner,
+				date,
+			].join(",");
+		});
+
+		const csv = [headers.join(","), ...rows].join("\n");
+
+		// Download
+		const blob = new Blob([csv], { type: "text/csv" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${testType}_image_size_impact.csv`;
+		a.click();
+		URL.revokeObjectURL(url);
 	}
 
 	/**
@@ -314,12 +449,13 @@ export class UI {
 
 		chartContainer.innerHTML = `
         <div class="chart-header">
-            <div class="chart-title">WebAssembly Performance Scaling by Image Size</div>
-            <div class="chart-subtitle">How WASM advantage changes with image dimensions (${
-							sizeData.length
-						} data points)</div>
-            <button class="clear-stats-btn" data-test="${testType}" data-clear-type="imageSize">Clear Size Data</button>
-        </div>
+    		<div class="chart-title">WebAssembly Performance Scaling by Image Size</div>
+   		    <div class="chart-subtitle">How WASM advantage changes with image dimensions (${
+						sizeData.length
+					} data points)</div>
+    		<button class="export-stats-btn" data-test="${testType}" data-export-type="imageSize">Export stats</button>
+    		<button class="clear-stats-btn" data-test="${testType}" data-clear-type="imageSize">Clear Size Data</button>
+		</div>
         <div class="chart-canvas-wrapper">
             <svg class="line-chart" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
                 <!-- Grid lines -->
@@ -409,33 +545,33 @@ export class UI {
                             
                             <!-- Tooltip (hidden by default) -->
                             <g class="data-point-labels" style="opacity: 0; pointer-events: none;">
-                                <rect x="${cx + 12}" y="${cy - 35}" 
+                                <rect x="${cx - 60}" y="${cy}" 
                                     width="140" height="60" 
                                     rx="4" 
                                     fill="var(--bg-dark)" 
                                     stroke="${color}" 
                                     stroke-width="1.5" 
                                     opacity="0.95"/>
-                                <text x="${cx + 18}" y="${cy - 20}" 
+                                <text x="${cx - 54}" y="${cy + 15}" 
                                     fill="${color}" 
                                     font-size="11" 
                                     font-family="Courier New" 
                                     font-weight="600">
                                     ${point.megapixels.toFixed(2)} MP
                                 </text>
-                                <text x="${cx + 18}" y="${cy - 5}" 
+                                <text x="${cx - 54}" y="${cy + 30}" 
                                     fill="var(--text-primary)" 
                                     font-size="10" 
                                     font-family="Courier New">
                                     ${winner} faster: ${Math.abs(point.speedup).toFixed(2)}x
                                 </text>
-                                <text x="${cx + 18}" y="${cy + 10}" 
+                                <text x="${cx - 54}" y="${cy + 45}" 
                                     fill="var(--text-secondary)" 
                                     font-size="9" 
                                     font-family="Courier New">
                                     JS: ${point.jsTime.toFixed(1)}ms
                                 </text>
-                                <text x="${cx + 18}" y="${cy + 23}" 
+                                <text x="${cx - 54}" y="${cy + 58}" 
                                     fill="var(--text-secondary)" 
                                     font-size="9" 
                                     font-family="Courier New">
@@ -505,6 +641,16 @@ export class UI {
 				}
 			});
 		}
+
+		// Export button for image size data
+		const exportBtn = chartContainer.querySelector(
+			'.export-stats-btn[data-export-type="imageSize"]'
+		);
+		if (exportBtn) {
+			exportBtn.addEventListener("click", () => {
+				this.exportImageSizeData(testType, sizeData);
+			});
+		}
 	}
 
 	/**
@@ -514,7 +660,7 @@ export class UI {
 		if (sortedData.length < 3) {
 			return `
             <div class="metric-explanation">
-                <div class="explanation-header">💡 Understanding Image Size Impact</div>
+                <div class="explanation-header">Understanding Image Size Impact</div>
                 <div class="explanation-content">
                     <p><strong>Run tests with various image sizes to see trends</strong></p>
                     <p><em>Tip:</em> Test with small (< 1 MP), medium (1-5 MP), and large (> 10 MP) images</p>
@@ -1344,7 +1490,7 @@ export class UI {
 
 		return `
             <div class="metric-explanation">
-                <div class="explanation-header">💡 Understanding This Metric</div>
+                <div class="explanation-header">Understanding This Metric</div>
                 <div class="explanation-content">
                     <p><strong>${info.meaning}</strong></p>
                     <p><em>Note:</em> ${info.tip}</p>

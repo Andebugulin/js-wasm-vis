@@ -47,7 +47,7 @@
 }
 
 .metric-tab.active {
-	background: rgba(0, 255, 0, 0.1);
+	background: rgba(2, 13, 77, 0.4);
 	border-color: var(--text-highlight);
 	color: var(--text-highlight);
 }
@@ -102,6 +102,30 @@
 	border-color: #ff4444;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2);
+}
+
+.export-stats-btn {
+	position: absolute;
+	top: 0;
+	right: 160px;
+	padding: 0.5rem 1rem;
+	font-size: 0.7rem;
+	font-family: "Courier New", monospace;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	background: transparent;
+	border: 1px solid rgba(74, 222, 128, 0.3);
+	color: var(--text-highlight);
+	cursor: pointer;
+	border-radius: 4px;
+	transition: all 0.3s ease;
+}
+
+.export-stats-btn:hover {
+	background: rgba(74, 222, 128, 0.1);
+	border-color: var(--text-highlight);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 15px rgba(74, 222, 128, 0.2);
 }
 
 /* Line Chart Styling */
@@ -349,9 +373,9 @@
 .metric-explanation {
 	margin-top: 2rem;
 	padding: 1.5rem;
-	background: rgba(0, 255, 0, 0.03);
 	border-left: 3px solid var(--text-highlight);
 	border-radius: 4px;
+	background: rgba(2, 13, 77, 0.4);
 }
 
 .explanation-header {
