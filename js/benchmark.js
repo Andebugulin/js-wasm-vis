@@ -1,26 +1,26 @@
 import { CONFIG } from "./config.js";
 
 /**
- * Benchmarks
+ * handle test execution and measurements
  */
 export class Benchmark {
 	constructor(ui) {
 		this.ui = ui;
 		this.testResults = {};
-		this.wasmModule = null; // Cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
+		this.wasmModule = null; // cache WASM module, validated - because browser will cache binary but we need to cache initialized js module
 		this.wasmModuleBlur = null;
 		this.wasmModuleBatch = null;
 		this.imageSizePerformance = this.loadImageSizeData();
 	}
 
 	/**
-	 * Run complete comparison
+	 * runs both JS and WASM tests, with amount of runs based in config
 	 */
 	async runComparison(testType, imageData, runs, colorCount = 256) {
 		const jsMetricsArray = [];
 		const wasmMetricsArray = [];
 
-		// === JavaScript Test ===
+		// JavaScript Test
 		this.ui.showCountdown(testType, "js", "preparing...");
 		await this.delay(CONFIG.TIMING.COUNTDOWN_DELAY);
 
@@ -39,7 +39,7 @@ export class Benchmark {
 			await this.delay(CONFIG.TIMING.DELAY_BETWEEN_RUNS);
 		}
 
-		// === WebAssembly Test ===
+		// WebAssembly Test
 		this.ui.showCountdown(testType, "wasm", "preparing...");
 		await this.delay(CONFIG.TIMING.COUNTDOWN_DELAY);
 
@@ -64,11 +64,10 @@ export class Benchmark {
 			await this.delay(CONFIG.TIMING.DELAY_BETWEEN_RUNS);
 		}
 
-		// Calculate statistics
 		const jsStats = this.calculateStatistics(jsMetricsArray);
 		const wasmStats = this.calculateStatistics(wasmMetricsArray);
 
-		// We need to do that because we cleared processedImageData earlier to save memory
+		// we need to do that because we cleared processedImageData earlier to save memory
 		console.log("Regenerating median results for display...");
 		const jsMedianCopy = new ImageData(
 			new Uint8ClampedArray(imageData.data),
@@ -94,7 +93,6 @@ export class Benchmark {
 			colorCount
 		);
 
-		// Record image size performance
 		const megapixels = (imageData.width * imageData.height) / 1_000_000;
 		this.recordImageSizePerformance(
 			testType,
@@ -103,7 +101,6 @@ export class Benchmark {
 			wasmStats.median.executionTime
 		);
 
-		// Record format performance (if format info available)
 		if (imageData.formatInfo) {
 			this.recordFormatPerformance(
 				testType,
@@ -114,18 +111,16 @@ export class Benchmark {
 			);
 		}
 
-		// REVIEW: why don't just calculate it not from media, but from all runs?
-		// Determine winner based on median execution time
+		// using median to determine winner
 		const jsFaster = jsStats.median.executionTime < wasmStats.median.executionTime;
 		const timeDiff = Math.abs(jsStats.median.executionTime - wasmStats.median.executionTime);
 
-		// Calculate speedup factor
 		const speedup = jsFaster
 			? wasmStats.median.executionTime / jsStats.median.executionTime
 			: jsStats.median.executionTime / wasmStats.median.executionTime;
 
-		// Display results in order with visual delay
 		if (jsFaster) {
+			// just show who is first
 			await this.displayResultWithDelay(testType, "js", jsStats.median, "winner");
 			await this.delay(Math.min(timeDiff, CONFIG.TIMING.MAX_VISUAL_DELAY));
 			await this.displayResultWithDelay(testType, "wasm", wasmStats.median, "slower");
@@ -135,26 +130,20 @@ export class Benchmark {
 			await this.displayResultWithDelay(testType, "js", jsStats.median, "slower");
 		}
 
-		// Clean up countdowns
 		await this.delay(CONFIG.TIMING.RESULT_DISPLAY_DELAY);
 		this.ui.hideCountdown(testType, "js");
 		this.ui.hideCountdown(testType, "wasm");
 
-		// Store results with statistics
 		this.storeResults(testType, "js", jsStats);
 		this.storeResults(testType, "wasm", wasmStats);
 
-		// Force garbage collection hint by clearing intermediate arrays
+		// clear arrays for g.c.
 		jsMetricsArray.length = 0;
 		wasmMetricsArray.length = 0;
 
-		// Display speedup summary
 		this.ui.showSpeedupSummary(testType, jsFaster ? "js" : "wasm", speedup);
 	}
 
-	/**
-	 * Load image size performance data from localStorage
-	 */
 	loadImageSizeData() {
 		const stored = localStorage.getItem("imageSizePerformance");
 		if (stored) {
@@ -171,12 +160,9 @@ export class Benchmark {
 		};
 	}
 
-	/**
-	 * Save image size performance data to localStorage
-	 */
 	saveImageSizeData() {
 		try {
-			// Keep only last 100 entries per test
+			// only keep recent entries to avoid localStorage freezing
 			Object.keys(this.imageSizePerformance).forEach((testType) => {
 				if (
 					this.imageSizePerformance[testType].length > CONFIG.IMAGE_SIZE_TRACKING.MAX_SIZE_ENTRIES
@@ -192,19 +178,16 @@ export class Benchmark {
 		}
 	}
 
-	/**
-	 * Record size-based performance
-	 */
 	recordImageSizePerformance(testType, megapixels, jsMedianTime, wasmMedianTime) {
 		if (!CONFIG.IMAGE_SIZE_TRACKING.ENABLED) return;
 
-		const speedup = jsMedianTime / wasmMedianTime; // > 1 = WASM faster, < 1 = JS faster
+		const speedup = jsMedianTime / wasmMedianTime; // > 1 = WASM , < 1 = JS
 
 		if (!this.imageSizePerformance[testType]) {
 			this.imageSizePerformance[testType] = [];
 		}
 
-		// Find if we already have data for this size (within 5% tolerance)
+		// check if similar size exists
 		const existingIndex = this.imageSizePerformance[testType].findIndex(
 			(entry) => Math.abs(entry.megapixels - megapixels) / megapixels < 0.05
 		);
@@ -218,7 +201,6 @@ export class Benchmark {
 		};
 
 		if (existingIndex >= 0) {
-			// Update if new result is better (more reliable with multiple runs)
 			const existing = this.imageSizePerformance[testType][existingIndex];
 			if (Math.abs(speedup) > Math.abs(existing.speedup)) {
 				this.imageSizePerformance[testType][existingIndex] = newEntry;
@@ -231,7 +213,7 @@ export class Benchmark {
 	}
 
 	/**
-	 * Display result with status indicator, basically ui operation with delay for visual effect, so that the user knows that tests started to run
+	 * show results with small delay to have a feeling who is the winner
 	 */
 	async displayResultWithDelay(testType, side, metrics, status) {
 		const statusText = status === "winner" ? "completed 1" : "completed 2";
@@ -255,10 +237,8 @@ export class Benchmark {
 		);
 		const endTime = performance.now();
 
-		// Calculate execution time
 		const executionTime = endTime - startTime;
 
-		// Calculate throughput (megapixels per second)
 		const totalPixels = imageData.width * imageData.height;
 		const megapixels = totalPixels / 1_000_000;
 		const throughput = megapixels / (executionTime / 1000);
@@ -277,9 +257,6 @@ export class Benchmark {
 		};
 	}
 
-	/**
-	 * Execute the actual image processing test
-	 */
 	async executeTest(testType, processorType, imageData, colorCount = 256) {
 		if (testType === "invert") {
 			if (processorType === "js") {
@@ -325,20 +302,15 @@ export class Benchmark {
 		throw new Error(`Test type "${testType}" not implemented`);
 	}
 
-	/**
-	 * Calculate statistics from metrics array
-	 */
 	calculateStatistics(metricsArray) {
 		if (metricsArray.length === 0) {
 			throw new Error("Cannot calculate statistics on empty array");
 		}
 
-		// Sort by execution time for median
 		const sorted = [...metricsArray].sort((a, b) => a.executionTime - b.executionTime);
 
 		const median = sorted[Math.floor(sorted.length / 2)];
 
-		// Calculate mean
 		const sum = metricsArray.reduce(
 			(acc, m) => ({
 				executionTime: acc.executionTime + m.executionTime,
@@ -356,17 +328,14 @@ export class Benchmark {
 			throughput: sum.throughput / count,
 		};
 
-		// Calculate standard deviation (must be AFTER mean is calculated)
 		const squaredDiffs = metricsArray.reduce(
 			(acc, m) => acc + Math.pow(m.executionTime - mean.executionTime, 2),
 			0
 		);
 		const stdDev = Math.sqrt(squaredDiffs / count);
 
-		// Calculate coefficient of variation (must be AFTER stdDev)
 		const coefficientOfVariation = (stdDev / mean.executionTime) * 100;
 
-		// Find min and max
 		const min = sorted[0];
 		const max = sorted[sorted.length - 1];
 
@@ -386,7 +355,7 @@ export class Benchmark {
 	}
 
 	/**
-	 * Store results in memory and sessionStorage
+	 * put results in memory and sessionStorage
 	 */
 	storeResults(testType, processorType, statistics) {
 		if (!this.testResults[testType]) {
@@ -401,7 +370,7 @@ export class Benchmark {
 			results.push(currentRun);
 		}
 
-		// **Clear the previous complete run's images before storing new ones**
+		// need to clear previous runs to save space
 		if (results.length > 1 && currentRun.js && currentRun.wasm) {
 			const previousRun = results[results.length - 2];
 			if (previousRun?.js?.median?.processedImageData) {
@@ -412,10 +381,8 @@ export class Benchmark {
 			}
 		}
 
-		// Store new statistics
 		currentRun[processorType] = statistics;
 
-		// Store limited data in sessionStorage (no ImageData)
 		const stored = sessionStorage.getItem(`${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`);
 		let storedResults = stored ? JSON.parse(stored) : [];
 		let storedRun = storedResults[storedResults.length - 1];
@@ -425,7 +392,6 @@ export class Benchmark {
 			storedResults.push(storedRun);
 		}
 
-		// Store only serializable metrics (no ImageData, no functions)
 		storedRun[processorType] = {
 			median: this.sanitizeMetrics(statistics.median),
 			mean: statistics.mean,
@@ -436,7 +402,7 @@ export class Benchmark {
 			firstRun: this.sanitizeMetrics(statistics.firstRun),
 		};
 
-		// Keep only last N results
+		// store only last N runs
 		if (storedResults.length > CONFIG.STORAGE.MAX_HISTORY_ITEMS) {
 			storedResults = storedResults.slice(-CONFIG.STORAGE.MAX_HISTORY_ITEMS);
 		}
@@ -450,16 +416,13 @@ export class Benchmark {
 		);
 	}
 
-	/**
-	 * Remove non-serializable properties from metrics
-	 */
 	sanitizeMetrics(metrics) {
 		const { processedImageData, ...rest } = metrics;
-		return rest; // Keep everything except processedImageData
+		return rest; // keep everything except processedImageData
 	}
 
 	/**
-	 * Verify that JS and WASM produced identical results
+	 * verify that js and wasm results are pixel identical
 	 */
 	async verifyResults(testType) {
 		console.log(`Verifying results for ${testType}`);
@@ -469,7 +432,6 @@ export class Benchmark {
 
 		const lastRun = results[results.length - 1];
 
-		// Check if both results exist
 		if (!lastRun?.js?.median?.processedImageData || !lastRun?.wasm?.median?.processedImageData) {
 			return false;
 		}
@@ -482,7 +444,7 @@ export class Benchmark {
 			return false;
 		}
 
-		// Compare with threshold
+		// compare with threshold
 		const threshold = CONFIG.VERIFICATION.PIXEL_DIFF_THRESHOLD;
 		for (let i = 0; i < jsData.length; i++) {
 			if (Math.abs(jsData[i] - wasmData[i]) > threshold) {
@@ -494,9 +456,6 @@ export class Benchmark {
 		return true;
 	}
 
-	/**
-	 * Utility delay function
-	 */
 	delay(ms) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}

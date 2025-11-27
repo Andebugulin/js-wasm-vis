@@ -1,10 +1,5 @@
-// utils.js
 export class ImageUtils {
-	/**
-	 * Helper to load image from data URL or file
-	 * @param {string|File} imageSource
-	 * @returns {Promise<ImageData>}
-	 */
+	// load image from URL or File and return ImageData, its operatable
 	static async loadImage(imageSource) {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
@@ -33,11 +28,7 @@ export class ImageUtils {
 		});
 	}
 
-	/**
-	 * Converts ImageData back to displayable format
-	 * @param {ImageData} imageData
-	 * @returns {string} - Data URL
-	 */
+	// convert ImageData to Data URL, its displayable
 	static imageDataToDataURL(imageData) {
 		const canvas = document.createElement("canvas");
 		canvas.width = imageData.width;

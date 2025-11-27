@@ -1,26 +1,20 @@
-/**
- * K-Means Color Quantization Implementation in JavaScript
- * Deterministic K-Means++ initialization for better color diversity
- */
 export class KMeansQuantizer {
 	static quantize(imageData, k = 8) {
 		const { width, height, data } = imageData;
 		const output = new Uint8ClampedArray(data.length);
 
-		// Extract ALL pixels (RGB only)
+		// only rgb needed
 		const pixels = [];
 		for (let i = 0; i < data.length; i += 4) {
 			pixels.push([data[i], data[i + 1], data[i + 2]]);
 		}
 
-		// IMPORTANT: Train K-Means on a SAMPLE for better color distribution
+		// sample 1k ( too slow if more)
 		const sampleSize = Math.min(1000, pixels.length);
 		const sampledPixels = this.deterministicSample(pixels, sampleSize);
 
-		// Initialize centroids from SAMPLED pixels
 		let centroids = this.initializeCentroidsDeterministic(sampledPixels, k);
 
-		// K-means iterations on SAMPLED pixels only
 		const maxIterations = 20;
 		for (let iter = 0; iter < maxIterations; iter++) {
 			const clusters = Array.from({ length: k }, () => []);
@@ -39,7 +33,7 @@ export class KMeansQuantizer {
 			centroids = newCentroids;
 		}
 
-		// Apply trained centroids to ALL pixels
+		// map all pixels to nearest centroids
 		for (let i = 0; i < pixels.length; i++) {
 			const nearest = this.findNearestCentroid(pixels[i], centroids);
 			const [r, g, b] = centroids[nearest];
@@ -53,9 +47,6 @@ export class KMeansQuantizer {
 		return new ImageData(output, width, height);
 	}
 
-	/**
-	 * Deterministic sampling - picks evenly spaced pixels
-	 */
 	static deterministicSample(pixels, sampleSize) {
 		const sampled = [];
 		const step = pixels.length / sampleSize;
@@ -69,36 +60,34 @@ export class KMeansQuantizer {
 	}
 
 	/**
-	 * Deterministic initialization inspired by K-Means++
-	 * Spreads centroids across color space for better diversity
+	 * spreads centroids out (kmeans++ way)
 	 */
 	static initializeCentroidsDeterministic(pixels, k) {
 		if (pixels.length === 0) return [];
 
 		const centroids = [];
 
-		// First centroid: use pixel at 1/4 position (stable middle-ish color)
+		//  start at 1/4th position
 		centroids.push([...pixels[Math.floor(pixels.length / 4)]]);
 
-		// Remaining centroids: pick pixels furthest from existing centroids
+		// pick remaining centroids
 		for (let c = 1; c < k; c++) {
 			let maxMinDist = -1;
 			let bestPixelIdx = 0;
 
-			// Sample every Nth pixel for performance (deterministic sampling)
+			// don't check pixel one by one
 			const sampleRate = Math.max(1, Math.floor(pixels.length / 1000));
 
 			for (let i = 0; i < pixels.length; i += sampleRate) {
 				const pixel = pixels[i];
 
-				// Find distance to nearest existing centroid
+				// find closest centroid
 				let minDist = Infinity;
 				for (const centroid of centroids) {
 					const dist = this.euclideanDistance(pixel, centroid);
 					if (dist < minDist) minDist = dist;
 				}
 
-				// Keep track of pixel with maximum minimum distance
 				if (minDist > maxMinDist) {
 					maxMinDist = minDist;
 					bestPixelIdx = i;

@@ -5,7 +5,7 @@ import { CONFIG } from "./config.js";
 import { SettingsManager } from "./settings.js";
 
 /**
- * Main Application Controller
+ * main app controller
  */
 class App {
 	constructor() {
@@ -13,7 +13,7 @@ class App {
 		this.benchmark = new Benchmark(this.ui);
 		this.currentImages = {};
 		this.settings = new SettingsManager(this);
-		// Exposing benchmark globally for UI access
+		// for charts
 		window.benchmarkInstance = this.benchmark;
 
 		this.init();
@@ -26,10 +26,10 @@ class App {
 	}
 
 	/**
-	 * Setup all event listeners: currently for file uploads, test run buttons, metric tabs
+	 * setup all even handlers
 	 */
 	setupEventListeners() {
-		// Upload button listeners
+		// upload button listeners
 		document.querySelectorAll(".upload-button").forEach((button) => {
 			button.addEventListener("click", (e) => {
 				const testType = e.target.dataset.test;
@@ -37,24 +37,24 @@ class App {
 			});
 		});
 
-		// File input listeners
+		// file input listeners
 		document.querySelectorAll(".hidden-file-input").forEach((input) => {
 			input.addEventListener("change", (e) => this.handleFileUpload(e));
 		});
 
-		// Run test button listeners
+		// run test button listeners
 		document.querySelectorAll(".run-test-button").forEach((button) => {
 			button.addEventListener("click", (e) => this.handleRunTest(e));
 		});
 
-		// Metric tab listeners - like execution time, memory, UI freeze
+		// metric tab listeners
 		document.querySelectorAll(".metric-tab").forEach((tab) => {
 			tab.addEventListener("click", (e) => this.handleMetricChange(e));
 		});
 	}
 
 	/**
-	 * Handle file upload and validation, used only in tests
+	 * handle image uploads
 	 */
 	async handleFileUpload(event) {
 		console.log("File upload event:", event);
@@ -63,14 +63,13 @@ class App {
 
 		const testType = event.target.dataset.test;
 
-		// Validate file
 		if (!file.type.startsWith("image/")) {
 			alert("Please upload a valid image file");
 			return;
 		}
 
-		// Validate file size (max 50MB) REVIEW:
-		const maxSize = 50 * 1024 * 1024; // 50MB
+		// limit file sizes
+		const maxSize = 50 * 1024 * 1024;
 		if (file.size > maxSize) {
 			alert("File too large. Please upload an image smaller than 50MB");
 			return;
@@ -79,13 +78,11 @@ class App {
 		try {
 			const dataUrl = await this.readFileAsDataURL(file);
 
-			// Load image to check dimensions
+			// need to check dimensions before processing
 			const tempImage = await ImageUtils.loadImage(dataUrl);
 
-			// Get max dimension for this test type
 			const maxDimension = CONFIG.RUNS[testType.toUpperCase()].MAX_DIMENSION;
 
-			// Check if image exceeds maximum dimensions
 			if (tempImage.width > maxDimension || tempImage.height > maxDimension) {
 				alert(
 					`Image dimensions too large for this test!\nMaximum allowed: ${maxDimension}x${maxDimension} pixels\nYour image: ${tempImage.width}x${tempImage.height} pixels`
@@ -106,8 +103,7 @@ class App {
 
 			await this.ui.showImagePreview(testType, dataUrl);
 
-			// Enable run button
-			this.ui.enableRunButton(testType);
+			this.ui.enableRunButton(testType); // allow test to run now
 		} catch (error) {
 			console.error("File upload failed:", error);
 			alert("Failed to load file. Please try another image.");
@@ -115,7 +111,7 @@ class App {
 	}
 
 	/**
-	 * Generate simple hash from image data
+	 * quick hash to verify that its the same image across runs
 	 */
 	async generateImageHash(dataUrl) {
 		const img = await ImageUtils.loadImage(dataUrl);
@@ -127,26 +123,20 @@ class App {
 		return hash.toString(16);
 	}
 
-	/**
-	 * Handle running the selected test, currently for 3 tests - invert, edge detection, color quantization
-	 */
 	async handleRunTest(event) {
 		const testType = event.target.dataset.test;
 
-		// Disable button and show running state
 		this.ui.setButtonRunning(testType, true);
 
 		try {
 			const imageInfo = this.currentImages[testType];
 			const imageData = await ImageUtils.loadImage(imageInfo.data);
 
-			// Attach metadata to imageData for tracking
-			imageData.hash = imageInfo.hash;
+			imageData.hash = imageInfo.hash; // for tracking across runs
 			imageData.filename = imageInfo.filename;
 
 			const runs = this.getRunCount(imageData, testType);
 
-			// Get color count for K-Means test
 			let colorCount = CONFIG.KMEANS.DEFAULT_COLORS;
 			if (testType === "blur") {
 				const colorInput = document.getElementById("color-count-blur");
@@ -170,15 +160,13 @@ class App {
 				console.log(`Color count: ${colorCount}`);
 			}
 
-			// Run both tests
+			// run both tests
 			await this.benchmark.runComparison(testType, imageData, runs, colorCount);
 
-			// Update chart with default metric and reset tabs
-			const defaultMetric = testType === "invert" ? "time" : "time";
+			const defaultMetric = testType === "invert" ? "time" : "time"; // start with time view
 			this.ui.updateChart(testType, defaultMetric);
 			this.ui.setActiveMetricTab(testType, defaultMetric);
 
-			// Verify that results are identical
 			const isIdentical = await this.benchmark.verifyResults(testType);
 			this.ui.showVerificationBadge(testType, isIdentical);
 
@@ -189,13 +177,12 @@ class App {
 			console.error("Test failed:", error);
 			this.ui.showError(testType, error.message || "Test execution failed");
 		} finally {
-			// Re-enable button
 			this.ui.setButtonRunning(testType, false);
 		}
 	}
 
 	/**
-	 * Handle metric tab change, right now four metrics: execution time, memory usage, UI freeze, processed image size REVIEW: maybe will add image dimensions metric
+	 * switch between between metrics
 	 */
 	handleMetricChange(event) {
 		const tab = event.target;
@@ -203,16 +190,14 @@ class App {
 		const testType = testItem.dataset.test;
 		const metric = tab.dataset.metric;
 
-		// Update active tab styling
 		testItem.querySelectorAll(".metric-tab").forEach((t) => t.classList.remove("active"));
 		tab.classList.add("active");
 
-		// Update chart with new metric
 		this.ui.updateChart(testType, metric);
 	}
 
 	/**
-	 * Determine number of runs based on image size and test type, this is to balance freezing, due to heavier tests needing fewer runs
+	 * check config for defining number of runs
 	 */
 	getRunCount(imageData, testType) {
 		const megapixels = (imageData.width * imageData.height) / 1_000_000;
@@ -227,9 +212,6 @@ class App {
 		return testConfig.LARGE_IMAGE_RUNS;
 	}
 
-	/**
-	 * Read file as Data URL, need that because initially we get File object from input and we want to convert to Data URL for image loading
-	 */
 	readFileAsDataURL(file) {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
@@ -240,7 +222,6 @@ class App {
 	}
 }
 
-// Initialize app when DOM is ready
 if (document.readyState === "loading") {
 	document.addEventListener("DOMContentLoaded", () => {
 		try {

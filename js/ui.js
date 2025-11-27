@@ -1,15 +1,11 @@
 import { ImageUtils } from "./utils.js";
 import { CONFIG, METRIC_DISPLAY } from "./config.js";
 
-/**
- * UI updates and visualization
- */
 export class UI {
 	constructor() {
 		this.maxHistoryItems = CONFIG.STORAGE.MAX_HISTORY_ITEMS;
 	}
 
-	// === File Preview Display ===
 	showImagePreview(testType, dataUrl) {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const containers = testItem.querySelectorAll(".image-container");
@@ -57,7 +53,6 @@ export class UI {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const containers = testItem.querySelectorAll(".image-container");
 
-		// Create temporary video element to get dimensions
 		const video = document.createElement("video");
 		video.src = URL.createObjectURL(file);
 
@@ -94,8 +89,6 @@ export class UI {
 		button.textContent = isRunning ? "Running..." : "Run Complete Test";
 	}
 
-	// === Countdown Overlay Controls ===
-
 	showCountdown(testType, side, text) {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const container = testItem.querySelector(`.image-container[data-side="${side}"]`);
@@ -124,11 +117,6 @@ export class UI {
 		actualImage.src = dataUrl;
 	}
 
-	// === Performance Visualization ===
-
-	/**
-	 * Display speedup summary card
-	 */
 	showSpeedupSummary(testType, winner, speedup) {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const summaryContainer = testItem.querySelector(".speedup-summary");
@@ -151,9 +139,6 @@ export class UI {
 		summaryContainer.classList.add("active");
 	}
 
-	/**
-	 * Update chart with selected metric
-	 */
 	updateChart(testType, metric = "time") {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const chartContainer = testItem.querySelector(".chart-container");
@@ -171,7 +156,6 @@ export class UI {
 		const displayResults = results
 			.filter((result) => result && result.js && result.wasm)
 			.slice(-this.maxHistoryItems);
-		// If no complete results, show empty state
 		if (displayResults.length === 0) {
 			chartContainer.innerHTML = `
             <div class="empty-state">
@@ -188,7 +172,6 @@ export class UI {
 			return;
 		}
 
-		// Special handling for image size metric
 		if (metric === "imageSize") {
 			this.showImageSizeChart(testType, chartContainer);
 			return;
@@ -221,7 +204,6 @@ export class UI {
         ${this.createStatisticsPanel(displayResults, metricConfig)}
     `;
 
-		// Add clear button listener
 		const clearBtn = chartContainer.querySelector(".clear-stats-btn");
 		if (clearBtn) {
 			clearBtn.addEventListener("click", () => {
@@ -231,7 +213,6 @@ export class UI {
 			});
 		}
 
-		// Add export button listener
 		const exportBtn = chartContainer.querySelector(".export-stats-btn");
 		if (exportBtn) {
 			exportBtn.addEventListener("click", () => {
@@ -239,9 +220,7 @@ export class UI {
 			});
 		}
 	}
-	/**
-	 * Export statistics to CSV from sessionStorage
-	 */
+
 	exportStatistics(testType, results) {
 		if (!results || results.length === 0) return;
 
@@ -251,7 +230,6 @@ export class UI {
 			blur: "K-Means Quantization",
 		};
 
-		// Conditional headers based on test type
 		const headers = [
 			"Run",
 			"JS Execution Time (ms)",
@@ -264,9 +242,7 @@ export class UI {
 		}
 		headers.push("JS Consistency (CV %)", "WASM Consistency (CV %)", "Speedup");
 
-		// CSV Rows
 		const rows = results.map((result, i) => {
-			// Cold start overhead = first run - median
 			const jsColdStart = result.js.firstRun
 				? (result.js.firstRun.executionTime - result.js.median.executionTime).toFixed(2)
 				: "N/A";
@@ -289,7 +265,6 @@ export class UI {
 				wasmColdStart,
 			];
 
-			// Only add pixel rate for invert test
 			if (testType === "invert") {
 				row.push(
 					result.js.median.throughput ? result.js.median.throughput.toFixed(2) : "N/A",
@@ -304,7 +279,6 @@ export class UI {
 
 		const csv = [headers.join(","), ...rows].join("\n");
 
-		// Download
 		const blob = new Blob([csv], { type: "text/csv" });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
@@ -314,9 +288,6 @@ export class UI {
 		URL.revokeObjectURL(url);
 	}
 
-	/**
-	 * Export image size performance data to CSV
-	 */
 	exportImageSizeData(testType, sizeData) {
 		if (!sizeData || sizeData.length === 0) return;
 
@@ -326,10 +297,8 @@ export class UI {
 			blur: "K-Means Quantization",
 		};
 
-		// Sort by megapixels
 		const sorted = [...sizeData].sort((a, b) => a.megapixels - b.megapixels);
 
-		// CSV Header
 		const headers = [
 			"Megapixels",
 			"JS Time (ms)",
@@ -339,7 +308,6 @@ export class UI {
 			"Timestamp",
 		];
 
-		// CSV Rows
 		const rows = sorted.map((point) => {
 			const winner = point.speedup > 1 ? "WASM" : "JS";
 			const date = new Date(point.timestamp).toLocaleString();
@@ -356,7 +324,6 @@ export class UI {
 
 		const csv = [headers.join(","), ...rows].join("\n");
 
-		// Download
 		const blob = new Blob([csv], { type: "text/csv" });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
@@ -366,9 +333,6 @@ export class UI {
 		URL.revokeObjectURL(url);
 	}
 
-	/**
-	 * Set active metric tab
-	 */
 	setActiveMetricTab(testType, metric) {
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		testItem.querySelectorAll(".metric-tab").forEach((tab) => {
@@ -380,9 +344,6 @@ export class UI {
 		});
 	}
 
-	/**
-	 * Show image size impact chart
-	 */
 	showImageSizeChart(testType, chartContainer) {
 		const benchmark = window.benchmarkInstance;
 		if (!benchmark || !benchmark.imageSizePerformance) {
@@ -404,10 +365,8 @@ export class UI {
 			return;
 		}
 
-		// Sort by megapixels
 		const sorted = [...sizeData].sort((a, b) => a.megapixels - b.megapixels);
 
-		// Create scatter plot
 		const width = 900;
 		const height = 400;
 		const marginLeft = 100;
@@ -417,18 +376,16 @@ export class UI {
 		const chartWidth = width - marginLeft - marginRight;
 		const chartHeight = height - marginTop - marginBottom;
 
-		// Scales
 		const maxMP = Math.max(...sorted.map((d) => d.megapixels));
 		const minMP = Math.min(...sorted.map((d) => d.megapixels));
 		const allSpeedups = sorted.map((d) => d.speedup);
-		const maxSpeedup = Math.max(...allSpeedups, 1.5); // At least show 1.5x
-		const minSpeedup = Math.min(...allSpeedups, 0.5); // At least show 0.5x
+		const maxSpeedup = Math.max(...allSpeedups, 1.5);
+		const minSpeedup = Math.min(...allSpeedups, 0.5);
 
 		const scaleX = (mp) => marginLeft + ((mp - minMP) / (maxMP - minMP || 1)) * chartWidth;
 		const scaleY = (speedup) =>
 			marginTop + chartHeight - ((speedup - minSpeedup) / (maxSpeedup - minSpeedup)) * chartHeight;
 
-		// Generate Y-axis ticks (always include 1.0 = parity)
 		const yTicks = [];
 		const numTicks = 7;
 		for (let i = 0; i <= numTicks; i++) {
@@ -436,7 +393,6 @@ export class UI {
 			yTicks.push({ value, y: scaleY(value), isParity: Math.abs(value - 1.0) < 0.05 });
 		}
 
-		// Generate X-axis ticks
 		const xTicks = [];
 		const numXTicks = 5;
 		for (let i = 0; i <= numXTicks; i++) {
@@ -444,7 +400,6 @@ export class UI {
 			xTicks.push({ value, x: scaleX(value) });
 		}
 
-		// Parity line position
 		const parityY = scaleY(1.0);
 
 		chartContainer.innerHTML = `
@@ -618,7 +573,6 @@ export class UI {
         ${this.createImageSizeInsights(sorted, testType)}
     `;
 
-		// Add hover interactions
 		chartContainer.querySelectorAll(".data-point").forEach((point) => {
 			point.addEventListener("mouseenter", () => {
 				const labels = point.querySelector(".data-point-labels");
@@ -630,7 +584,6 @@ export class UI {
 			});
 		});
 
-		// Clear button
 		const clearBtn = chartContainer.querySelector(".clear-stats-btn");
 		if (clearBtn) {
 			clearBtn.addEventListener("click", () => {
@@ -642,7 +595,6 @@ export class UI {
 			});
 		}
 
-		// Export button for image size data
 		const exportBtn = chartContainer.querySelector(
 			'.export-stats-btn[data-export-type="imageSize"]'
 		);
@@ -653,9 +605,6 @@ export class UI {
 		}
 	}
 
-	/**
-	 * Generate insights from image size data
-	 */
 	createImageSizeInsights(sortedData, testType) {
 		if (sortedData.length < 3) {
 			return `
@@ -669,7 +618,6 @@ export class UI {
         `;
 		}
 
-		// Find optimal size range
 		const wasmFasterPoints = sortedData.filter((d) => d.speedup > 1);
 		const jsFasterPoints = sortedData.filter((d) => d.speedup < 1);
 
@@ -755,13 +703,9 @@ export class UI {
 		return { jsPoints, wasmPoints };
 	}
 
-	/**
-	 * Create SVG line chart
-	 */
 	createLineChart(results, metricConfig) {
 		const { jsPoints, wasmPoints } = this.extractDataPoints(results, metricConfig);
 
-		// Filter out null values
 		const validJsPoints = jsPoints.filter((p) => p.y !== null && p.y !== undefined);
 		const validWasmPoints = wasmPoints.filter((p) => p.y !== null && p.y !== undefined);
 
@@ -769,26 +713,21 @@ export class UI {
 			return '<div class="empty-state">No valid data points</div>';
 		}
 
-		// Calculate scale - ALWAYS include 0
 		const allValues = [...validJsPoints, ...validWasmPoints].map((p) => p.y);
 		const dataMin = Math.min(...allValues);
 		const dataMax = Math.max(...allValues);
 
-		// For cold start metric, allow negative space
 		let yMin, yMax;
 		if (metricConfig.compareWithMedian && metricConfig.useFirstRun) {
-			// Cold start: allow for negative values (overhead can be negative if first run is faster)
 			yMin = Math.min(0, dataMin - Math.abs(dataMax - dataMin) * 0.1);
 			yMax = dataMax + Math.abs(dataMax - dataMin) * 0.1;
 		} else {
-			// All other metrics: start from 0
 			yMin = 0;
-			yMax = dataMax + dataMax * 0.1; // 10% padding on top
+			yMax = dataMax + dataMax * 0.1;
 		}
 
 		const yRange = yMax - yMin;
 
-		// Chart dimensions
 		const width = 900;
 		const height = 350;
 		const marginLeft = 110;
@@ -798,16 +737,14 @@ export class UI {
 		const chartWidth = width - marginLeft - marginRight;
 		const chartHeight = height - marginTop - marginBottom;
 
-		// Scale functions
 		const scaleX = (runNumber) => {
 			if (results.length === 1) {
-				return marginLeft + chartWidth / 2; // Center single point
+				return marginLeft + chartWidth / 2;
 			}
 			return marginLeft + ((runNumber - 1) / (results.length - 1)) * chartWidth;
 		};
 		const scaleY = (value) => marginTop + chartHeight - ((value - yMin) / yRange) * chartHeight;
 
-		// Generate path data
 		const createPath = (points) => {
 			if (points.length === 0) return "";
 			return points.map((p, i) => `${i === 0 ? "M" : "L"} ${scaleX(p.x)} ${scaleY(p.y)}`).join(" ");
@@ -816,45 +753,37 @@ export class UI {
 		const jsPath = createPath(validJsPoints);
 		const wasmPath = createPath(validWasmPoints);
 
-		// Generate Y-axis labels (5 ticks) - ALWAYS include 0
 		const yTicks = [];
 		const numTicks = 5;
 
-		// Check if this is cold start metric (needs special 0 highlighting)
 		const isColdStart = metricConfig.compareWithMedian && metricConfig.useFirstRun;
 
-		// Ensure 0 is always included
 		const includesZero = yMin <= 0 && yMax >= 0;
 
 		if (includesZero) {
-			// Place 0 exactly, then distribute other ticks
 			const zeroY = scaleY(0);
-			yTicks.push({ value: 0, y: zeroY, isZero: isColdStart }); // Only highlight for cold start
+			yTicks.push({ value: 0, y: zeroY, isZero: isColdStart });
 
-			// Add ticks above 0
 			const ticksAbove = Math.floor(numTicks / 2);
 			for (let i = 1; i <= ticksAbove; i++) {
 				const value = (yMax * i) / ticksAbove;
 				yTicks.push({ value, y: scaleY(value), isZero: false });
 			}
 
-			// Add ticks below 0 (for cold start metric)
 			const ticksBelow = Math.floor(numTicks / 2);
 			for (let i = 1; i <= ticksBelow; i++) {
 				const value = (yMin * i) / ticksBelow;
 				yTicks.push({ value, y: scaleY(value), isZero: false });
 			}
 
-			yTicks.sort((a, b) => b.y - a.y); // Sort by Y position (top to bottom)
+			yTicks.sort((a, b) => b.y - a.y);
 		} else {
-			// Regular distribution when 0 is not in range (shouldn't happen now)
 			for (let i = 0; i <= numTicks - 1; i++) {
 				const value = yMin + (yRange * i) / (numTicks - 1);
 				yTicks.push({ value, y: scaleY(value), isZero: false });
 			}
 		}
 
-		// Generate X-axis labels
 		const xTicks = results.map((_, i) => ({
 			label: `Run ${i + 1}`,
 			x: scaleX(i + 1),
@@ -1038,15 +967,12 @@ export class UI {
 	 * Clear all test results
 	 */
 	clearTestResults(testType) {
-		// Clear from sessionStorage
 		sessionStorage.removeItem(`${CONFIG.STORAGE.SESSION_KEY_PREFIX}${testType}`);
 
-		// Clear from benchmark memory (if benchmark reference exists)
 		if (window.benchmarkInstance && window.benchmarkInstance.testResults) {
 			window.benchmarkInstance.testResults[testType] = [];
 		}
 
-		// Clear chart display
 		const testItem = document.querySelector(`[data-test="${testType}"]`);
 		const chartContainer = testItem.querySelector(".chart-container");
 
@@ -1056,24 +982,18 @@ export class UI {
             </div>
         `;
 
-		// Hide speedup summary
 		const summaryContainer = testItem.querySelector(".speedup-summary");
 		if (summaryContainer) {
 			summaryContainer.classList.remove("active");
 		}
 
-		// Hide verification badge
 		const badge = testItem.querySelector(".verification-badge");
 		if (badge) {
 			badge.classList.remove("active", "verified", "error");
 		}
 	}
 
-	/**
-	 * Create a chart group (pair of bars) for one test run
-	 */
 	createChartGroup(result, runNumber, metricConfig) {
-		// Debug logging
 		console.log("createChartGroup called:", {
 			runNumber,
 			metric: metricConfig.label,
@@ -1081,7 +1001,6 @@ export class UI {
 			wasmStats: result.wasm,
 		});
 
-		// Determine which value to show
 		let jsValue, wasmValue;
 
 		try {
@@ -1103,7 +1022,6 @@ export class UI {
 
 		console.log("Chart values:", { jsValue, wasmValue, metric: metricConfig.label });
 
-		// Special handling for coefficient of variation
 		if (metricConfig.useCoefficient) {
 			const jsCV = (result.js.stdDev / result.js.mean.executionTime) * 100;
 			const wasmCV = (result.wasm.stdDev / result.wasm.mean.executionTime) * 100;
@@ -1127,7 +1045,6 @@ export class UI {
             `;
 		}
 
-		// Special handling for warmup comparison
 		if (metricConfig.compareWithMedian && metricConfig.useFirstRun) {
 			const jsFirstRun = result.js.firstRun?.executionTime || 0;
 			const jsMedian = result.js.median.executionTime;
@@ -1160,7 +1077,6 @@ export class UI {
             `;
 		}
 
-		// Handle null/undefined values for normal metrics
 		if (
 			jsValue === null ||
 			jsValue === undefined ||
@@ -1182,14 +1098,12 @@ export class UI {
             `;
 		}
 
-		// Normal metrics (execution time, pixel rate) - CALCULATE HEIGHTS HERE
 		const maxValue = Math.max(Math.abs(jsValue), Math.abs(wasmValue));
 		const jsHeight = maxValue > 0 ? (Math.abs(jsValue) / maxValue) * 100 : 0;
 		const wasmHeight = maxValue > 0 ? (Math.abs(wasmValue) / maxValue) * 100 : 0;
 
 		console.log("Bar heights:", { jsHeight, wasmHeight, maxValue });
 
-		// RETURN STATEMENT FOR NORMAL METRICS
 		return `
             <div class="chart-group">
                 <div class="chart-bars">
@@ -1205,16 +1119,11 @@ export class UI {
         `;
 	}
 
-	/**
-	 * Create statistics panel showing detailed metrics
-	 */
 	createStatisticsPanel(results, metricConfig) {
-		// Calculate overall statistics
 		const lastRun = results[results.length - 1];
 		const jsStats = lastRun.js;
 		const wasmStats = lastRun.wasm;
 
-		// Special handling for coefficient of variation
 		if (metricConfig.useCoefficient) {
 			const jsCV = (jsStats.stdDev / jsStats.mean.executionTime) * 100;
 			const wasmCV = (wasmStats.stdDev / wasmStats.mean.executionTime) * 100;
@@ -1267,7 +1176,6 @@ export class UI {
             `;
 		}
 
-		// Get values based on metric configuration
 		let jsMedian, wasmMedian, jsMean, wasmMean, jsMin, jsMax, wasmMin, wasmMax;
 
 		if (metricConfig.useMean) {
@@ -1290,7 +1198,6 @@ export class UI {
                 `;
 			}
 
-			// For warmup comparison, show the overhead
 			if (metricConfig.compareWithMedian) {
 				const jsFirstRun = jsStats.firstRun.executionTime;
 				const jsMedianTime = jsStats.median.executionTime;
@@ -1373,7 +1280,6 @@ export class UI {
 			wasmMax = metricConfig.accessor(wasmStats.max);
 		}
 
-		// Handle unavailable metrics (null/undefined values)
 		if (
 			jsMedian === null ||
 			jsMedian === undefined ||

@@ -15,7 +15,7 @@ export class EdgeDetector {
 			[1, 2, 1],
 		];
 
-		const THRESH = 170; // tune 80–180 depending on result
+		const THRESH = 100;
 
 		for (let y = 1; y < height - 1; y++) {
 			for (let x = 1; x < width - 1; x++) {

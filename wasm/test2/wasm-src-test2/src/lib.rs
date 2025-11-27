@@ -1,15 +1,15 @@
 use wasm_bindgen::prelude::*;
 use web_sys::ImageData;
 
-/// K-Means Color Quantization Implementation in Rust/WASM
-/// Deterministic K-Means++ initialization for better color diversity
+// Color quantization using k-means clustering
+// went with deterministic init after random gave inconsistent results across runs
 #[wasm_bindgen]
 pub fn quantize(image_data: &ImageData, k: usize) -> Result<ImageData, JsValue> {
     let width = image_data.width() as usize;
     let height = image_data.height() as usize;
     let data = image_data.data();
     
-    // Extract ALL pixels (RGB only)
+    // grab all RGB values (skip alpha channel)
     let mut pixels: Vec<[f64; 3]> = Vec::with_capacity(width * height);
     for i in (0..data.len()).step_by(4) {
         pixels.push([
@@ -19,15 +19,13 @@ pub fn quantize(image_data: &ImageData, k: usize) -> Result<ImageData, JsValue> 
         ]);
     }
     
-    // IMPORTANT: Train K-Means on a SAMPLE for better color distribution
+    // training on full image is too slow. sampling 1k pixels instead
     let sample_size = 1000.min(pixels.len());
     let sampled_pixels = deterministic_sample(&pixels, sample_size);
     
-    // Initialize centroids from SAMPLED pixels
     let mut centroids = initialize_centroids_deterministic(&sampled_pixels, k);
     
-    // K-means iterations on SAMPLED pixels only
-    let max_iterations = 20;
+    let max_iterations = 20; // usually converges way before this
     for _ in 0..max_iterations {
         let mut clusters: Vec<Vec<[f64; 3]>> = vec![Vec::new(); k];
         
@@ -54,7 +52,7 @@ pub fn quantize(image_data: &ImageData, k: usize) -> Result<ImageData, JsValue> 
         centroids = new_centroids;
     }
     
-    // Apply trained centroids to ALL pixels
+    // mapping all pixels to nearest centroid color
     let mut output = vec![0u8; data.len()];
     for (i, pixel) in pixels.iter().enumerate() {
         let nearest = find_nearest_centroid(pixel, &centroids);
@@ -72,7 +70,7 @@ pub fn quantize(image_data: &ImageData, k: usize) -> Result<ImageData, JsValue> 
     )
 }
 
-/// Deterministic sampling - picks evenly spaced pixels
+// picks evenly spaced pixels for sampling
 fn deterministic_sample(pixels: &[[f64; 3]], sample_size: usize) -> Vec<[f64; 3]> {
     let mut sampled = Vec::with_capacity(sample_size);
     let step = pixels.len() as f64 / sample_size as f64;
@@ -85,8 +83,7 @@ fn deterministic_sample(pixels: &[[f64; 3]], sample_size: usize) -> Vec<[f64; 3]
     sampled
 }
 
-/// Deterministic initialization inspired by K-Means++
-/// Spreads centroids across color space for better diversity
+// spreads initial centroids out for faster convergence 
 fn initialize_centroids_deterministic(pixels: &[[f64; 3]], k: usize) -> Vec<[f64; 3]> {
     if pixels.is_empty() {
         return Vec::new();
@@ -94,21 +91,21 @@ fn initialize_centroids_deterministic(pixels: &[[f64; 3]], k: usize) -> Vec<[f64
     
     let mut centroids = Vec::with_capacity(k);
     
-    // First centroid: use pixel at 1/4 position
+    // start with pixel at 1/4 mark (stable middle-ish color)
     centroids.push(pixels[pixels.len() / 4]);
     
-    // Remaining centroids: pick pixels furthest from existing centroids
+    // pick remaining centroids far apart from each other
     for _ in 1..k {
         let mut max_min_dist = -1.0;
         let mut best_pixel_idx = 0;
         
-        // Sample every Nth pixel for performance (deterministic)
+        // don't check every single pixel. too slow        
         let sample_rate = 1.max(pixels.len() / 1000);
         
         for i in (0..pixels.len()).step_by(sample_rate) {
             let pixel = &pixels[i];
             
-            // Find distance to nearest existing centroid
+            // find closest existing centroid
             let mut min_dist = f64::INFINITY;
             for centroid in &centroids {
                 let dist = euclidean_distance(pixel, centroid);
@@ -117,7 +114,7 @@ fn initialize_centroids_deterministic(pixels: &[[f64; 3]], k: usize) -> Vec<[f64
                 }
             }
             
-            // Keep track of pixel with maximum minimum distance
+            // track furthest pixel
             if min_dist > max_min_dist {
                 max_min_dist = min_dist;
                 best_pixel_idx = i;

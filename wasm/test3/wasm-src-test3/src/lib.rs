@@ -1,9 +1,9 @@
 use wasm_bindgen::prelude::*;
 use web_sys::ImageData;
 
+// Sobel edge detection, blur first to reduce noise
 #[wasm_bindgen]
 pub fn edge_detection(image_data: ImageData) -> Result<ImageData, JsValue> {
-    // First blur the image
     let blurred = blur(&image_data)?;
     let data = blurred.data().0;
     let width = blurred.width() as usize;
@@ -11,9 +11,14 @@ pub fn edge_detection(image_data: ImageData) -> Result<ImageData, JsValue> {
     
     let mut output = vec![0u8; data.len()];
     
-    let sobel_x: [[i32; 3]; 3] = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
-    let sobel_y: [[i32; 3]; 3] = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
-    let thresh = 170;
+    // Sobel kernels for gradient calculation
+    let sobel_x: [[i32; 3]; 3] = [[-1, 0, 1], 
+                                  [-2, 0, 2], 
+                                  [-1, 0, 1]];
+    let sobel_y: [[i32; 3]; 3] = [[-1, -2, -1],
+                                  [0, 0, 0],
+                                  [1, 2, 1]];
+    let thresh = 100; // REVIEW: maybe make this configurable later
     
     for y in 1..height-1 {
         for x in 1..width-1 {
@@ -58,7 +63,8 @@ fn blur(image_data: &ImageData) -> Result<ImageData, JsValue> {
     
     let kernel: [[i32; 3]; 3] = [[1, 2, 1], [2, 4, 2], [1, 2, 1]];
     let sum_k = 16;
-    
+
+    // using gaussian kernel - good enough for edge prep 
     for y in 1..height-1 {
         for x in 1..width-1 {
             let mut acc = 0i32;
@@ -68,12 +74,16 @@ fn blur(image_data: &ImageData) -> Result<ImageData, JsValue> {
                     let px = x + kx - 1;
                     let py = y + ky - 1;
                     let idx = (py * width + px) * 4;
-                    let gray = ((data[idx] as i32 + data[idx + 1] as i32 + data[idx + 2] as i32) as f64 / 3.0).round() as i32;
+                    // simple rgb to grayscale average
+                    let r = data[idx] as i32;
+                    let g = data[idx + 1] as i32;
+                    let b = data[idx + 2] as i32;
+                    let gray = ((r + g + b) as f64 / 3.0).round() as i32;
                     acc += gray * kernel[ky][kx];
                 }
             }
             
-            let g = ((acc as f64 / sum_k as f64).round() as u8);
+            let g = (acc as f64 / sum_k as f64).round() as u8;
             let idx = (y * width + x) * 4;
             out[idx] = g;
             out[idx + 1] = g;

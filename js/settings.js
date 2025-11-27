@@ -72,7 +72,7 @@ export class SettingsManager {
 	}
 
 	initUI() {
-		// Settings trigger buttons in sticky headers
+		// trigger button in sticky header
 		document.querySelectorAll(".sticky-settings-btn").forEach((btn) => {
 			btn.addEventListener("click", (e) => {
 				const testType = e.target.dataset.test;
@@ -107,7 +107,6 @@ export class SettingsManager {
 		const testKey = this.currentTest.toUpperCase();
 		const config = CONFIG.RUNS[testKey];
 
-		// Update title
 		const testNames = {
 			invert: "Color Inversion",
 			batch: "Edge Detection",
@@ -117,7 +116,6 @@ export class SettingsManager {
 			testNames[this.currentTest]
 		} Settings`;
 
-		// Populate fields
 		document.getElementById("setting-max-dimension").value = config.MAX_DIMENSION;
 		document.getElementById("setting-small-threshold").value = config.SMALL_IMAGE_THRESHOLD;
 		document.getElementById("setting-medium-threshold").value = config.MEDIUM_IMAGE_THRESHOLD;
@@ -125,7 +123,6 @@ export class SettingsManager {
 		document.getElementById("setting-medium-runs").value = config.MEDIUM_IMAGE_RUNS;
 		document.getElementById("setting-large-runs").value = config.LARGE_IMAGE_RUNS;
 
-		// Show current image info if available
 		this.updateCurrentImageInfo();
 	}
 
@@ -145,7 +142,6 @@ export class SettingsManager {
 		document.getElementById("currentImageDimensions").textContent = `${width} × ${height}`;
 		document.getElementById("currentImageMP").textContent = `${megapixels.toFixed(2)} MP`;
 
-		// Determine category
 		const testKey = this.currentTest.toUpperCase();
 		const config = CONFIG.RUNS[testKey];
 		let category = "Large";
