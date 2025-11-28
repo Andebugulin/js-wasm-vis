@@ -222,3 +222,28 @@
 		margin-right: 0.5rem;
 	}
 }
+
+.hidden-sticky-header {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0, 0, 21, 0.98);
+	backdrop-filter: blur(10px);
+	border-top: 2px solid rgba(255, 255, 255, 0.1);
+	padding: 1rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: "Courier New", monospace;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-primary);
+	z-index: 100;
+	opacity: 0;
+	transform: translateY(100%);
+	transition: opacity 0.25s ease, transform 0.25s ease;
+	pointer-events: none;
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+	will-change: transform, opacity;
+}

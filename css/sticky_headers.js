@@ -42,8 +42,8 @@ class StickyHeadersController {
 				},
 				{
 					// Trigger when test content enters/exits viewport
-					threshold: 0,
-					rootMargin: "-20% 0px -20% 0px", // Activate when section is prominently visible
+					threshold: [0, 0.1],
+					rootMargin: "-15% 0px -15% 0px",
 				}
 			);
 
