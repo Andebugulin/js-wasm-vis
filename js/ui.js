@@ -403,16 +403,16 @@ export class UI {
 		const parityY = scaleY(1.0);
 
 		chartContainer.innerHTML = `
-        <div class="chart-header">
-    		<div class="chart-title">WebAssembly Performance Scaling by Image Size</div>
-   		    <div class="chart-subtitle">How WASM advantage changes with image dimensions (${
-						sizeData.length
-					} data points)</div>
-    		<button class="export-stats-btn" data-test="${testType}" data-export-type="imageSize">Export stats</button>
-    		<button class="clear-stats-btn" data-test="${testType}" data-clear-type="imageSize">Clear Size Data</button>
-		</div>
-        <div class="chart-canvas-wrapper">
-            <svg class="line-chart" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+    <div class="chart-header">
+        <div class="chart-title">WebAssembly Performance Scaling by Image Size</div>
+        <div class="chart-subtitle">How WASM advantage changes with image dimensions (${
+					sizeData.length
+				} data points)</div>
+        <button class="export-stats-btn" data-test="${testType}" data-export-type="imageSize">Export stats</button>
+        <button class="clear-stats-btn" data-test="${testType}" data-clear-type="imageSize">Clear Size Data</button>
+    </div>
+    <div class="chart-canvas-wrapper">
+        <svg class="line-chart" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
                 <!-- Grid lines -->
                 <g class="grid">
                     ${yTicks
@@ -574,14 +574,44 @@ export class UI {
     `;
 
 		chartContainer.querySelectorAll(".data-point").forEach((point) => {
+			let isActive = false;
+
 			point.addEventListener("mouseenter", () => {
 				const labels = point.querySelector(".data-point-labels");
 				if (labels) labels.style.opacity = "1";
 			});
 			point.addEventListener("mouseleave", () => {
-				const labels = point.querySelector(".data-point-labels");
-				if (labels) labels.style.opacity = "0";
+				if (!isActive) {
+					const labels = point.querySelector(".data-point-labels");
+					if (labels) labels.style.opacity = "0";
+				}
 			});
+
+			point.addEventListener("click", (e) => {
+				e.stopPropagation();
+
+				chartContainer.querySelectorAll(".data-point").forEach((otherPoint) => {
+					if (otherPoint !== point) {
+						const otherLabels = otherPoint.querySelector(".data-point-labels");
+						if (otherLabels) otherLabels.style.opacity = "0";
+					}
+				});
+
+				const labels = point.querySelector(".data-point-labels");
+				if (labels) {
+					isActive = labels.style.opacity === "1";
+					labels.style.opacity = isActive ? "0" : "1";
+					isActive = !isActive;
+				}
+			});
+		});
+
+		document.addEventListener("click", (e) => {
+			if (!e.target.closest(".data-point")) {
+				chartContainer.querySelectorAll(".data-point-labels").forEach((labels) => {
+					labels.style.opacity = "0";
+				});
+			}
 		});
 
 		const clearBtn = chartContainer.querySelector(".clear-stats-btn");

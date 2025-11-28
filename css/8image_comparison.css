@@ -322,3 +322,48 @@
 	color: var(--accent-js);
 	font-size: 1rem;
 }
+
+@media (max-width: 968px) {
+	.image-container {
+		min-height: 200px;
+		aspect-ratio: unset;
+		height: auto;
+	}
+
+	.image-container .actual-image {
+		max-height: 300px;
+		object-fit: contain;
+	}
+
+	.dimension-indicators {
+		opacity: 0.7;
+	}
+
+	.dimension-width .dimension-label,
+	.dimension-height .dimension-label {
+		font-size: 0.65rem;
+		padding: 0.15rem 0.3rem;
+	}
+
+	.dimension-height .dimension-label {
+		margin-left: -2rem;
+	}
+
+	.image-label {
+		font-size: 0.65rem;
+		padding: 0.4rem 0.7rem;
+	}
+
+	.image-placeholder {
+		padding: 1rem;
+	}
+
+	.image-placeholder svg {
+		width: 50px;
+		height: 50px;
+	}
+
+	.upload-hint {
+		font-size: 0.7rem;
+	}
+}
