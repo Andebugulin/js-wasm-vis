@@ -1,0 +1,15 @@
+{
+  "name": "wasm-src-test2",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "wasm_src_test2_bg.wasm",
+    "wasm_src_test2.js",
+    "wasm_src_test2.d.ts"
+  ],
+  "main": "wasm_src_test2.js",
+  "types": "wasm_src_test2.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
