@@ -650,7 +650,7 @@ export class UI {
 
 		return `
         <div class="metric-explanation">
-            <div class="explanation-header">📊 Image Size Analysis</div>
+            <div class="explanation-header">Image Size Analysis</div>
             <div class="explanation-content">
                 ${insight}
             </div>
