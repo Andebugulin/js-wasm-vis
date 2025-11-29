@@ -6,7 +6,8 @@ export class KMeansQuantizer {
 		// only rgb needed
 		const pixels = [];
 		for (let i = 0; i < data.length; i += 4) {
-			pixels.push([data[i], data[i + 1], data[i + 2]]);
+			// use float becuase rust uses float
+			pixels.push([data[i] * 1.0, data[i + 1] * 1.0, data[i + 2] * 1.0]);
 		}
 
 		// sample 1k ( too slow if more)
